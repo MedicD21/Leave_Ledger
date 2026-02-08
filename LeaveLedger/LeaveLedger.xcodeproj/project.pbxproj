@@ -1,0 +1,626 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10001000000000000000001 /* LeaveLedgerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20001000000000000000001 /* LeaveLedgerApp.swift */; };
+		A10002000000000000000002 /* LeaveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20002000000000000000002 /* LeaveType.swift */; };
+		A10003000000000000000003 /* LeaveEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20003000000000000000003 /* LeaveEntry.swift */; };
+		A10004000000000000000004 /* PayPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20004000000000000000004 /* PayPeriod.swift */; };
+		A10005000000000000000005 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20005000000000000000005 /* UserProfile.swift */; };
+		A10006000000000000000006 /* BalanceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20006000000000000000006 /* BalanceEngine.swift */; };
+		A10007000000000000000007 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20007000000000000000007 /* DataStore.swift */; };
+		A10008000000000000000008 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20008000000000000000008 /* ExportService.swift */; };
+		A10009000000000000000009 /* ICSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20009000000000000000009 /* ICSService.swift */; };
+		A1000A00000000000000000A /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000A00000000000000000A /* KeychainService.swift */; };
+		A1000B00000000000000000B /* PayPeriodService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000B00000000000000000B /* PayPeriodService.swift */; };
+		A1000C00000000000000000C /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000C00000000000000000C /* SupabaseService.swift */; };
+		A1000D00000000000000000D /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000D00000000000000000D /* DateUtils.swift */; };
+		A1000E00000000000000000E /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000E00000000000000000E /* AppViewModel.swift */; };
+		A1000F00000000000000000F /* CalendarGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000F00000000000000000F /* CalendarGridView.swift */; };
+		A10010000000000000000010 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20010000000000000000010 /* MainTabView.swift */; };
+		A10011000000000000000011 /* BalanceSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20011000000000000000011 /* BalanceSummaryView.swift */; };
+		A10012000000000000000012 /* DayDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20012000000000000000012 /* DayDetailSheet.swift */; };
+		A10013000000000000000013 /* EntryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20013000000000000000013 /* EntryEditorView.swift */; };
+		A10014000000000000000014 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20014000000000000000014 /* HomeView.swift */; };
+		A10015000000000000000015 /* LedgerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20015000000000000000015 /* LedgerView.swift */; };
+		A10016000000000000000016 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20016000000000000000016 /* SettingsView.swift */; };
+		A10017000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20017000000000000000017 /* Assets.xcassets */; };
+		A10018000000000000000018 /* BalanceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018000000000000000018 /* BalanceEngineTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A30001000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A50001000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A40001000000000000000001;
+			remoteInfo = LeaveLedger;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A20001000000000000000001 /* LeaveLedgerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveLedgerApp.swift; sourceTree = "<group>"; };
+		A20002000000000000000002 /* LeaveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveType.swift; sourceTree = "<group>"; };
+		A20003000000000000000003 /* LeaveEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveEntry.swift; sourceTree = "<group>"; };
+		A20004000000000000000004 /* PayPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPeriod.swift; sourceTree = "<group>"; };
+		A20005000000000000000005 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		A20006000000000000000006 /* BalanceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceEngine.swift; sourceTree = "<group>"; };
+		A20007000000000000000007 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		A20008000000000000000008 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		A20009000000000000000009 /* ICSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICSService.swift; sourceTree = "<group>"; };
+		A2000A00000000000000000A /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		A2000B00000000000000000B /* PayPeriodService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPeriodService.swift; sourceTree = "<group>"; };
+		A2000C00000000000000000C /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		A2000D00000000000000000D /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
+		A2000E00000000000000000E /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		A2000F00000000000000000F /* CalendarGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarGridView.swift; sourceTree = "<group>"; };
+		A20010000000000000000010 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A20011000000000000000011 /* BalanceSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceSummaryView.swift; sourceTree = "<group>"; };
+		A20012000000000000000012 /* DayDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayDetailSheet.swift; sourceTree = "<group>"; };
+		A20013000000000000000013 /* EntryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryEditorView.swift; sourceTree = "<group>"; };
+		A20014000000000000000014 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A20015000000000000000015 /* LedgerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LedgerView.swift; sourceTree = "<group>"; };
+		A20016000000000000000016 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20017000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20018000000000000000018 /* BalanceEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceEngineTests.swift; sourceTree = "<group>"; };
+		A20019000000000000000019 /* LeaveLedger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeaveLedger.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2001A00000000000000001A /* LeaveLedgerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeaveLedgerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2001B00000000000000001B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A60001000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A60002000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A70001000000000000000001 /* = mainGroup */ = {
+			isa = PBXGroup;
+			children = (
+				A70002000000000000000002 /* LeaveLedger */,
+				A70012000000000000000012 /* LeaveLedgerTests */,
+				A70013000000000000000013 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A70002000000000000000002 /* LeaveLedger */ = {
+			isa = PBXGroup;
+			children = (
+				A70003000000000000000003 /* App */,
+				A70004000000000000000004 /* Models */,
+				A70005000000000000000005 /* Services */,
+				A70006000000000000000006 /* Utilities */,
+				A70007000000000000000007 /* ViewModels */,
+				A70008000000000000000008 /* Views */,
+				A20017000000000000000017 /* Assets.xcassets */,
+				A2001B00000000000000001B /* Info.plist */,
+			);
+			path = LeaveLedger;
+			sourceTree = "<group>";
+		};
+		A70003000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A20001000000000000000001 /* LeaveLedgerApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A70004000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20002000000000000000002 /* LeaveType.swift */,
+				A20003000000000000000003 /* LeaveEntry.swift */,
+				A20004000000000000000004 /* PayPeriod.swift */,
+				A20005000000000000000005 /* UserProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A70005000000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20006000000000000000006 /* BalanceEngine.swift */,
+				A20007000000000000000007 /* DataStore.swift */,
+				A20008000000000000000008 /* ExportService.swift */,
+				A20009000000000000000009 /* ICSService.swift */,
+				A2000A00000000000000000A /* KeychainService.swift */,
+				A2000B00000000000000000B /* PayPeriodService.swift */,
+				A2000C00000000000000000C /* SupabaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A70006000000000000000006 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A2000D00000000000000000D /* DateUtils.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A70007000000000000000007 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A2000E00000000000000000E /* AppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A70008000000000000000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A70009000000000000000009 /* Calendar */,
+				A7000A00000000000000000A /* Components */,
+				A7000B00000000000000000B /* Home */,
+				A7000C00000000000000000C /* Ledger */,
+				A7000D00000000000000000D /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A70009000000000000000009 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				A2000F00000000000000000F /* CalendarGridView.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		A7000A00000000000000000A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A20010000000000000000010 /* MainTabView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A7000B00000000000000000B /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				A20011000000000000000011 /* BalanceSummaryView.swift */,
+				A20012000000000000000012 /* DayDetailSheet.swift */,
+				A20013000000000000000013 /* EntryEditorView.swift */,
+				A20014000000000000000014 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		A7000C00000000000000000C /* Ledger */ = {
+			isa = PBXGroup;
+			children = (
+				A20015000000000000000015 /* LedgerView.swift */,
+			);
+			path = Ledger;
+			sourceTree = "<group>";
+		};
+		A7000D00000000000000000D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A20016000000000000000016 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A70012000000000000000012 /* LeaveLedgerTests */ = {
+			isa = PBXGroup;
+			children = (
+				A20018000000000000000018 /* BalanceEngineTests.swift */,
+			);
+			path = LeaveLedgerTests;
+			sourceTree = "<group>";
+		};
+		A70013000000000000000013 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A20019000000000000000019 /* LeaveLedger.app */,
+				A2001A00000000000000001A /* LeaveLedgerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A40001000000000000000001 /* LeaveLedger */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A80001000000000000000001 /* Build configuration list for PBXNativeTarget "LeaveLedger" */;
+			buildPhases = (
+				A90001000000000000000001 /* Sources */,
+				A60001000000000000000001 /* Frameworks */,
+				A90002000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LeaveLedger;
+			productName = LeaveLedger;
+			productReference = A20019000000000000000019 /* LeaveLedger.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A40002000000000000000002 /* LeaveLedgerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A80002000000000000000002 /* Build configuration list for PBXNativeTarget "LeaveLedgerTests" */;
+			buildPhases = (
+				A90003000000000000000003 /* Sources */,
+				A60002000000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A30002000000000000000002 /* PBXTargetDependency */,
+			);
+			name = LeaveLedgerTests;
+			productName = LeaveLedgerTests;
+			productReference = A2001A00000000000000001A /* LeaveLedgerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A50001000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A40001000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					A40002000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = A40001000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = A80003000000000000000003 /* Build configuration list for PBXProject "LeaveLedger" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A70001000000000000000001;
+			productRefGroup = A70013000000000000000013 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A40001000000000000000001 /* LeaveLedger */,
+				A40002000000000000000002 /* LeaveLedgerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A90002000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10017000000000000000017 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A90001000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10001000000000000000001 /* LeaveLedgerApp.swift in Sources */,
+				A10002000000000000000002 /* LeaveType.swift in Sources */,
+				A10003000000000000000003 /* LeaveEntry.swift in Sources */,
+				A10004000000000000000004 /* PayPeriod.swift in Sources */,
+				A10005000000000000000005 /* UserProfile.swift in Sources */,
+				A10006000000000000000006 /* BalanceEngine.swift in Sources */,
+				A10007000000000000000007 /* DataStore.swift in Sources */,
+				A10008000000000000000008 /* ExportService.swift in Sources */,
+				A10009000000000000000009 /* ICSService.swift in Sources */,
+				A1000A00000000000000000A /* KeychainService.swift in Sources */,
+				A1000B00000000000000000B /* PayPeriodService.swift in Sources */,
+				A1000C00000000000000000C /* SupabaseService.swift in Sources */,
+				A1000D00000000000000000D /* DateUtils.swift in Sources */,
+				A1000E00000000000000000E /* AppViewModel.swift in Sources */,
+				A1000F00000000000000000F /* CalendarGridView.swift in Sources */,
+				A10010000000000000000010 /* MainTabView.swift in Sources */,
+				A10011000000000000000011 /* BalanceSummaryView.swift in Sources */,
+				A10012000000000000000012 /* DayDetailSheet.swift in Sources */,
+				A10013000000000000000013 /* EntryEditorView.swift in Sources */,
+				A10014000000000000000014 /* HomeView.swift in Sources */,
+				A10015000000000000000015 /* LedgerView.swift in Sources */,
+				A10016000000000000000016 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A90003000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10018000000000000000018 /* BalanceEngineTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A30002000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A40001000000000000000001 /* LeaveLedger */;
+			targetProxy = A30001000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B10001000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B10002000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B10003000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LeaveLedger/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPABASE_URL = "";
+				SUPABASE_ANON_KEY = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B10004000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LeaveLedger/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPABASE_URL = "";
+				SUPABASE_ANON_KEY = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B10005000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LeaveLedger.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LeaveLedger";
+			};
+			name = Debug;
+		};
+		B10006000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LeaveLedger.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LeaveLedger";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A80001000000000000000001 /* Build configuration list for PBXNativeTarget "LeaveLedger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10003000000000000000003 /* Debug */,
+				B10004000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A80002000000000000000002 /* Build configuration list for PBXNativeTarget "LeaveLedgerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10005000000000000000005 /* Debug */,
+				B10006000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A80003000000000000000003 /* Build configuration list for PBXProject "LeaveLedger" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10001000000000000000001 /* Debug */,
+				B10002000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A50001000000000000000001 /* Project object */;
+}
