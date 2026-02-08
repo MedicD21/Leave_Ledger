@@ -91,7 +91,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A70001000000000000000001 /* = mainGroup */ = {
+		A70001000000000000000001 = {
 			isa = PBXGroup;
 			children = (
 				A70002000000000000000002 /* LeaveLedger */,
@@ -514,8 +514,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_URL = "";
-				SUPABASE_ANON_KEY = "";
+				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubHVqa3h5a25id2VyZ21ldGFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDU0OTQ1NCwiZXhwIjoyMDg2MTI1NDU0fQ.MawGm-YeDT22WQ-TOCZzIke3deyCChrXqiKWxthbbJ4";
+				SUPABASE_URL = "https://wnlujkxyknbwergmetab.supabase.co";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -544,8 +544,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_URL = "";
-				SUPABASE_ANON_KEY = "";
+				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubHVqa3h5a25id2VyZ21ldGFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDU0OTQ1NCwiZXhwIjoyMDg2MTI1NDU0fQ.MawGm-YeDT22WQ-TOCZzIke3deyCChrXqiKWxthbbJ4";
+				SUPABASE_URL = "https://wnlujkxyknbwergmetab.supabase.co";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
