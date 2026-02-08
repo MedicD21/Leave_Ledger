@@ -35,12 +35,18 @@ final class DataStore {
     // MARK: - Profile
 
     func getOrCreateProfile() -> UserProfile {
+        let deviceUserId = KeychainService.getUserId()
         let descriptor = FetchDescriptor<UserProfile>()
         let profiles = (try? context.fetch(descriptor)) ?? []
         if let profile = profiles.first {
+            if profile.id != deviceUserId {
+                profile.id = deviceUserId
+                profile.updatedAt = Date()
+                try? context.save()
+            }
             return profile
         }
-        let profile = UserProfile()
+        let profile = UserProfile(id: deviceUserId)
         context.insert(profile)
         try? context.save()
         return profile

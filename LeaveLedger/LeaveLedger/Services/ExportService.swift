@@ -111,16 +111,16 @@ struct ExportService {
             yPos += 22
 
             let tableHeaderAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.boldSystemFont(ofSize: 9),
+                .font: UIFont.monospacedSystemFont(ofSize: 9, weight: .semibold),
                 .foregroundColor: UIColor.secondaryLabel
             ]
 
-            let tableHeader = String(format: "%-12s %-10s %-10s %8s  %s", "Date", "Type", "Action", "Hours", "Notes")
+            let tableHeader = "\(pad("Date", to: 12)) \(pad("Type", to: 10)) \(pad("Action", to: 10)) \(pad("Hours", to: 8))  Notes"
             tableHeader.draw(at: CGPoint(x: margin, y: yPos), withAttributes: tableHeaderAttrs)
             yPos += 14
 
             let entryAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedDigitSystemFont(ofSize: 9, weight: .regular),
+                .font: UIFont.monospacedSystemFont(ofSize: 9, weight: .regular),
                 .foregroundColor: UIColor.label
             ]
 
@@ -143,15 +143,12 @@ struct ExportService {
 
                 let h = NSDecimalNumber(decimal: entry.hours).doubleValue
                 let sign = entry.action == .used ? "-" : (entry.adjustmentSign == .negative ? "-" : "+")
-                let line = String(
-                    format: "%-12s %-10s %-10s %s%7.2fh  %s",
-                    dateFormatter.string(from: entry.date),
-                    entry.leaveType.displayName,
-                    entry.action.displayName,
-                    sign,
-                    h,
-                    entry.notes ?? ""
-                )
+                let dateStr = dateFormatter.string(from: entry.date)
+                let typeStr = entry.leaveType.displayName
+                let actionStr = entry.action.displayName
+                let hoursStr = String(format: "%7.2f", h)
+                let notes = entry.notes ?? ""
+                let line = "\(pad(dateStr, to: 12)) \(pad(typeStr, to: 10)) \(pad(actionStr, to: 10)) \(sign)\(hoursStr)  \(notes)"
                 line.draw(at: CGPoint(x: margin, y: yPos), withAttributes: entryAttrs)
                 yPos += 13
             }
@@ -170,5 +167,13 @@ struct ExportService {
         } catch {
             return nil
         }
+    }
+
+    private func pad(_ value: String, to width: Int) -> String {
+        let trimmed = value.replacingOccurrences(of: "\n", with: " ")
+        if trimmed.count >= width {
+            return String(trimmed.prefix(width))
+        }
+        return trimmed + String(repeating: " ", count: width - trimmed.count)
     }
 }

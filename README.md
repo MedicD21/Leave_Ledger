@@ -69,20 +69,14 @@ The app works fully offline without Supabase. To enable cloud sync:
    ```bash
    supabase functions deploy leave-ics
    ```
-4. Add your Supabase credentials to the Xcode build settings:
-   - In Xcode, select the LeaveLedger target
-   - Go to Build Settings > User-Defined
-   - Set `SUPABASE_URL` to your project URL (e.g., `https://xxxx.supabase.co`)
-   - Set `SUPABASE_ANON_KEY` to your anon/public key
-
-   Alternatively, create a `Config.xcconfig` file:
+4. Add your Supabase credentials in `LeaveLedger/Config.xcconfig`:
 
    ```
    SUPABASE_URL = https://your-project.supabase.co
    SUPABASE_ANON_KEY = your-anon-key-here
    ```
 
-   And reference it in the project's build configuration.
+   Use the anon/public key (not the service role key).
 
 ### 3. Create Your Profile
 

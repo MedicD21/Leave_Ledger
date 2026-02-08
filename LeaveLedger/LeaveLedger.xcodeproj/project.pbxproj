@@ -71,6 +71,7 @@
 		A20019000000000000000019 /* LeaveLedger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LeaveLedger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2001A00000000000000001A /* LeaveLedgerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeaveLedgerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2001B00000000000000001B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A2001C00000000000000001C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +111,7 @@
 				A70007000000000000000007 /* ViewModels */,
 				A70008000000000000000008 /* Views */,
 				A20017000000000000000017 /* Assets.xcassets */,
+				A2001C00000000000000001C /* Config.xcconfig */,
 				A2001B00000000000000001B /* Info.plist */,
 			);
 			path = LeaveLedger;
@@ -496,14 +498,16 @@
 		};
 		B10003000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A2001C00000000000000001C /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 286LKF859M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LeaveLedger/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Leave Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -517,8 +521,6 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubHVqa3h5a25id2VyZ21ldGFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDU0OTQ1NCwiZXhwIjoyMDg2MTI1NDU0fQ.MawGm-YeDT22WQ-TOCZzIke3deyCChrXqiKWxthbbJ4";
-				SUPABASE_URL = "https://wnlujkxyknbwergmetab.supabase.co";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -527,14 +529,16 @@
 		};
 		B10004000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A2001C00000000000000001C /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 286LKF859M;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LeaveLedger/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Leave Ledger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -548,8 +552,6 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubHVqa3h5a25id2VyZ21ldGFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDU0OTQ1NCwiZXhwIjoyMDg2MTI1NDU0fQ.MawGm-YeDT22WQ-TOCZzIke3deyCChrXqiKWxthbbJ4";
-				SUPABASE_URL = "https://wnlujkxyknbwergmetab.supabase.co";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

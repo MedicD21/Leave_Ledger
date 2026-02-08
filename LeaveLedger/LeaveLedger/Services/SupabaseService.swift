@@ -3,11 +3,21 @@ import Foundation
 /// Configuration for Supabase connection.
 /// Values should be set in Info.plist or .xcconfig.
 enum SupabaseConfig {
-    static var url: String {
-        Bundle.main.infoDictionary?["SUPABASE_URL"] as? String ?? ""
-    }
-    static var anonKey: String {
-        Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String ?? ""
+    static var url: String { resolvedValue("SUPABASE_URL") }
+    static var anonKey: String { resolvedValue("SUPABASE_ANON_KEY") }
+
+    private static func resolvedValue(_ key: String) -> String {
+        let infoValue = Bundle.main.infoDictionary?[key] as? String ?? ""
+        let envValue = ProcessInfo.processInfo.environment[key] ?? ""
+        let trimmedInfo = infoValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedInfo.isEmpty && !trimmedInfo.contains("$(") {
+            return trimmedInfo
+        }
+        let trimmedEnv = envValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedEnv.isEmpty && !trimmedEnv.contains("$(") {
+            return trimmedEnv
+        }
+        return ""
     }
 }
 
@@ -47,9 +57,6 @@ final class SupabaseService {
             return
         }
 
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-
         let payload: [[String: Any]] = entries.map { entry in
             var dict: [String: Any] = [
                 "id": entry.id.uuidString,
@@ -82,10 +89,11 @@ final class SupabaseService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
         request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
         request.httpBody = body
 
-        URLSession.shared.dataTask(with: request) { [weak self] _, response, error in
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 self?.isSyncing = false
                 if let error = error {
@@ -95,7 +103,10 @@ final class SupabaseService {
                     self?.syncError = nil
                     completion(true)
                 } else {
-                    self?.syncError = "Push failed with status \((response as? HTTPURLResponse)?.statusCode ?? 0)"
+                    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                    let detail = body.isEmpty ? "" : " - \(body)"
+                    self?.syncError = "Push failed with status \(status)\(detail)"
                     completion(false)
                 }
             }
@@ -127,12 +138,20 @@ final class SupabaseService {
         var request = URLRequest(url: url)
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
 
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 self?.isSyncing = false
                 if let error = error {
                     self?.syncError = error.localizedDescription
+                    completion(nil)
+                    return
+                }
+                if let httpResp = response as? HTTPURLResponse, httpResp.statusCode >= 300 {
+                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                    let detail = body.isEmpty ? "" : " - \(body)"
+                    self?.syncError = "Pull failed with status \(httpResp.statusCode)\(detail)"
                     completion(nil)
                     return
                 }
@@ -160,27 +179,92 @@ final class SupabaseService {
 
     /// Full sync: push dirty, then pull updates.
     func sync(store: DataStore) {
-        let dirty = store.dirtyEntries()
-        if dirty.isEmpty {
-            pullEntries { [weak self] remote in
-                if let remote = remote {
-                    store.upsertFromRemote(remote)
-                }
-                _ = self
-            }
-        } else {
-            pushEntries(dirty) { [weak self] success in
-                if success {
-                    for entry in dirty {
-                        store.markClean(entry)
-                    }
-                }
+        let profile = store.getOrCreateProfile()
+        ensureProfile(profile) { [weak self] ready in
+            guard ready else { return }
+            let dirty = store.dirtyEntries()
+            if dirty.isEmpty {
                 self?.pullEntries { remote in
                     if let remote = remote {
                         store.upsertFromRemote(remote)
                     }
                 }
+            } else {
+                self?.pushEntries(dirty) { success in
+                    if success {
+                        for entry in dirty {
+                            store.markClean(entry)
+                        }
+                    }
+                    self?.pullEntries { remote in
+                        if let remote = remote {
+                            store.upsertFromRemote(remote)
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private func ensureProfile(_ profile: UserProfile, completion: @escaping (Bool) -> Void) {
+        guard isConfigured else {
+            syncError = "Supabase not configured"
+            completion(false)
+            return
+        }
+        isSyncing = true
+
+        guard let url = URL(string: "\(SupabaseConfig.url)/rest/v1/profiles") else {
+            syncError = "Invalid Supabase URL"
+            isSyncing = false
+            completion(false)
+            return
+        }
+
+        let payload: [String: Any] = [
+            "id": profile.id.uuidString,
+            "anchor_payday": DateUtils.isoDate(profile.anchorPayday),
+            "sick_start_balance": NSDecimalNumber(decimal: profile.sickStartBalance).doubleValue,
+            "vac_start_balance": NSDecimalNumber(decimal: profile.vacStartBalance).doubleValue,
+            "comp_start_balance": NSDecimalNumber(decimal: profile.compStartBalance).doubleValue,
+            "sick_accrual_rate": NSDecimalNumber(decimal: profile.sickAccrualRate).doubleValue,
+            "vac_accrual_rate": NSDecimalNumber(decimal: profile.vacAccrualRate).doubleValue,
+            "ical_token": profile.icalToken
+        ]
+
+        guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
+            syncError = "Failed to serialize profile"
+            isSyncing = false
+            completion(false)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        request.httpBody = body
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isSyncing = false
+                if let error = error {
+                    self?.syncError = error.localizedDescription
+                    completion(false)
+                } else if let httpResp = response as? HTTPURLResponse, httpResp.statusCode < 300 {
+                    self?.syncError = nil
+                    completion(true)
+                } else {
+                    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+                    let detail = body.isEmpty ? "" : " - \(body)"
+                    self?.syncError = "Profile upsert failed with status \(status)\(detail)"
+                    completion(false)
+                }
+            }
+        }.resume()
     }
 }
