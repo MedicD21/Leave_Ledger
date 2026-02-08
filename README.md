@@ -69,7 +69,7 @@ The app works fully offline without Supabase. To enable cloud sync:
    ```bash
    supabase functions deploy leave-ics
    ```
-4. Add your Supabase credentials in `LeaveLedger/Config.xcconfig`:
+4. Add your Supabase credentials in `LeaveLedger/LeaveLedger/Config.xcconfig`:
 
    ```
    SUPABASE_URL = https://your-project.supabase.co

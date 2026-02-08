@@ -1,7 +1,0 @@
-// Leave Ledger local configuration
-// Fill in your Supabase credentials for sync and iCal feed.
-// Example:
-// SUPABASE_URL = https://your-project.supabase.co
-// SUPABASE_ANON_KEY = your-anon-key-here
-SUPABASE_URL =
-SUPABASE_ANON_KEY =
