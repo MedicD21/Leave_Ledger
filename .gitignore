@@ -1,0 +1,71 @@
+# ===== Xcode =====
+
+# Build products
+build/
+DerivedData/
+*.xcarchive
+*.ipa
+
+# User-specific Xcode settings
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# ===== Swift Package Manager =====
+.build/
+Packages/
+Package.resolved
+
+# ===== CocoaPods =====
+Pods/
+
+# ===== Carthage =====
+Carthage/Build/
+
+# ===== Fastlane =====
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# ===== Environment files =====
+.env
+.env.*
+
+# ===== macOS =====
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===== Crash reports =====
+*.crash
+
+# ===== Coverage =====
+*.profdata
+
+# ===== VS Code =====
+.vscode/
+
+# ===== Secrets =====
+Secrets.plist
+GoogleService-Info.plist
+
+# ===== Supabase / config =====
+supabase/.env
+supabase/.temp/
+
+# ===== SwiftData/CoreData generated =====
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
