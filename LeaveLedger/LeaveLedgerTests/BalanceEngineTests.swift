@@ -40,10 +40,11 @@ final class BalanceEngineTests: XCTestCase {
     }
 
     func testLastPaydayBeforeAnchor() {
-        // Jan 15 is before anchor payday's period start
+        // Jan 15, 2026 is between paydays Jan 9 and Jan 23.
+        // Last payday on or before Jan 15 = Jan 9.
         let last = PayPeriodService.lastPayday(
             asOf: DateUtils.makeDate(2026, 1, 15), anchorPayday: anchorPayday)
-        XCTAssertTrue(DateUtils.isSameDay(last, DateUtils.makeDate(2026, 1, 23)))
+        XCTAssertTrue(DateUtils.isSameDay(last, DateUtils.makeDate(2026, 1, 9)))
     }
 
     func testLastPaydayOnPayday() {

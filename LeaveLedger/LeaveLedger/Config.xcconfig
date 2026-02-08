@@ -1,4 +1,6 @@
 // Leave Ledger local configuration
 // Fill in your Supabase credentials for sync and iCal feed.
-SUPABASE_URL = https://wnlujkxyknbwergmetab.supabase.co
-SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndubHVqa3h5a25id2VyZ21ldGFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDU0OTQ1NCwiZXhwIjoyMDg2MTI1NDU0fQ.MawGm-YeDT22WQ-TOCZzIke3deyCChrXqiKWxthbbJ4
+// Note: In .xcconfig, '//' starts a comment, so store host + scheme instead of full URL.
+SUPABASE_SCHEME = https
+SUPABASE_HOST = wnlujkxyknbwergmetab.supabase.co
+SUPABASE_ANON_KEY = sb_publishable_kCDa2fDnaqQhzuzJImkAxw_WQ4lq5ru

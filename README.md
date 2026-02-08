@@ -72,7 +72,8 @@ The app works fully offline without Supabase. To enable cloud sync:
 4. Add your Supabase credentials in `LeaveLedger/LeaveLedger/Config.xcconfig`:
 
    ```
-   SUPABASE_URL = https://your-project.supabase.co
+   SUPABASE_SCHEME = https
+   SUPABASE_HOST = your-project.supabase.co
    SUPABASE_ANON_KEY = your-anon-key-here
    ```
 

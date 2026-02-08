@@ -3,7 +3,22 @@ import Foundation
 /// Configuration for Supabase connection.
 /// Values should be set in Info.plist or .xcconfig.
 enum SupabaseConfig {
-    static var url: String { resolvedValue("SUPABASE_URL") }
+    static var url: String {
+        let direct = resolvedValue("SUPABASE_URL")
+        if !direct.isEmpty {
+            return direct
+        }
+        let host = resolvedValue("SUPABASE_HOST")
+        if host.isEmpty {
+            return ""
+        }
+        if host.contains("://") {
+            return host
+        }
+        let scheme = resolvedValue("SUPABASE_SCHEME")
+        let resolvedScheme = scheme.isEmpty ? "https" : scheme
+        return "\(resolvedScheme)://\(host)"
+    }
     static var anonKey: String { resolvedValue("SUPABASE_ANON_KEY") }
 
     private static func resolvedValue(_ key: String) -> String {
@@ -57,24 +72,25 @@ final class SupabaseService {
             return
         }
 
+        func valueOrNull(_ value: Any?) -> Any {
+            value ?? NSNull()
+        }
+
         let payload: [[String: Any]] = entries.map { entry in
-            var dict: [String: Any] = [
+            [
                 "id": entry.id.uuidString,
                 "user_id": entry.userId.uuidString,
                 "date": DateUtils.isoDate(entry.date),
                 "leave_type": entry.leaveTypeRaw,
                 "action": entry.actionRaw,
                 "hours": NSDecimalNumber(decimal: entry.hours).doubleValue,
+                "adjustment_sign": valueOrNull(entry.adjustmentSignRaw),
+                "notes": valueOrNull(entry.notes),
                 "source": entry.sourceRaw,
                 "created_at": ISO8601DateFormatter().string(from: entry.createdAt),
-                "updated_at": ISO8601DateFormatter().string(from: entry.updatedAt)
+                "updated_at": ISO8601DateFormatter().string(from: entry.updatedAt),
+                "deleted_at": valueOrNull(entry.deletedAt.map { ISO8601DateFormatter().string(from: $0) })
             ]
-            if let sign = entry.adjustmentSignRaw { dict["adjustment_sign"] = sign }
-            if let notes = entry.notes { dict["notes"] = notes }
-            if let deleted = entry.deletedAt {
-                dict["deleted_at"] = ISO8601DateFormatter().string(from: deleted)
-            }
-            return dict
         }
 
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
