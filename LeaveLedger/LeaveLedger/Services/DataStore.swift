@@ -10,7 +10,12 @@ final class DataStore {
 
     init() {
         let schema = Schema([LeaveEntry.self, UserProfile.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let config = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: true,
+            cloudKitDatabase: .none
+        )
         do {
             container = try ModelContainer(for: schema, configurations: [config])
             context = ModelContext(container)

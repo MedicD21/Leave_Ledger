@@ -121,8 +121,15 @@ final class SupabaseService {
         request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
-        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+
+        // Use authenticated access token if available, otherwise fall back to anon key
+        if let token = KeychainService.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        }
+
         request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
         request.httpBody = body
 
@@ -180,8 +187,14 @@ final class SupabaseService {
         var request = URLRequest(url: url)
         request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
-        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+
+        // Use authenticated access token if available, otherwise fall back to anon key
+        if let token = KeychainService.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        }
 
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
@@ -279,6 +292,10 @@ final class SupabaseService {
             return
         }
 
+        func valueOrNull(_ value: Any?) -> Any {
+            value ?? NSNull()
+        }
+
         let payload: [String: Any] = [
             "id": profile.id.uuidString,
             "anchor_payday": DateUtils.isoDate(profile.anchorPayday),
@@ -287,7 +304,19 @@ final class SupabaseService {
             "comp_start_balance": NSDecimalNumber(decimal: profile.compStartBalance).doubleValue,
             "sick_accrual_rate": NSDecimalNumber(decimal: profile.sickAccrualRate).doubleValue,
             "vac_accrual_rate": NSDecimalNumber(decimal: profile.vacAccrualRate).doubleValue,
-            "ical_token": profile.icalToken
+            "ical_token": profile.icalToken,
+            // Authentication and onboarding fields
+            "apple_user_id": valueOrNull(profile.appleUserId),
+            "email": valueOrNull(profile.email),
+            "is_authenticated": profile.isAuthenticated,
+            "is_setup_complete": profile.isSetupComplete,
+            // Pay period configuration
+            "pay_period_type": profile.payPeriodType,
+            "pay_period_interval": profile.payPeriodInterval,
+            // Enabled leave types
+            "comp_enabled": profile.compEnabled,
+            "vacation_enabled": profile.vacationEnabled,
+            "sick_enabled": profile.sickEnabled
         ]
 
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
@@ -303,8 +332,15 @@ final class SupabaseService {
         request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
-        request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+
+        // Use authenticated access token if available, otherwise fall back to anon key
+        if let token = KeychainService.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        }
+
         request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
         request.httpBody = body
 

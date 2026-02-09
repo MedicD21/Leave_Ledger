@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var showImportConfirmation = false
     @State private var importResult: String?
     @State private var showImportResult = false
+    @State private var showResetConfirmation = false
 
     // Editable fields
     @State private var anchorDate: Date
@@ -54,9 +55,15 @@ struct SettingsView: View {
             }
 
             Section("Starting Balances (at Anchor Payday)") {
-                DecimalField(label: "Sick Hours", text: $sickStart)
-                DecimalField(label: "Vacation Hours", text: $vacStart)
-                DecimalField(label: "Comp Hours", text: $compStart)
+                if viewModel.profile.sickEnabled {
+                    DecimalField(label: "Sick Hours", text: $sickStart)
+                }
+                if viewModel.profile.vacationEnabled {
+                    DecimalField(label: "Vacation Hours", text: $vacStart)
+                }
+                if viewModel.profile.compEnabled {
+                    DecimalField(label: "Comp Hours", text: $compStart)
+                }
 
                 Button("Apply Starting Balances") {
                     let comp = Decimal(string: compStart) ?? 0
@@ -67,8 +74,12 @@ struct SettingsView: View {
             }
 
             Section("Accrual Rates (per Payday)") {
-                DecimalField(label: "Sick Accrual", text: $sickRate)
-                DecimalField(label: "Vacation Accrual", text: $vacRate)
+                if viewModel.profile.sickEnabled {
+                    DecimalField(label: "Sick Accrual", text: $sickRate)
+                }
+                if viewModel.profile.vacationEnabled {
+                    DecimalField(label: "Vacation Accrual", text: $vacRate)
+                }
 
                 Button("Apply Accrual Rates") {
                     let vac = Decimal(string: vacRate) ?? 0
@@ -168,6 +179,14 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Account Management") {
+                Button(role: .destructive) {
+                    showResetConfirmation = true
+                } label: {
+                    Label("Reset Profile & Start Over", systemImage: "arrow.counterclockwise.circle")
+                }
+            }
+
             Section("About") {
                 HStack {
                     Text("Version")
@@ -214,6 +233,14 @@ struct SettingsView: View {
                 Text(result)
             }
         }
+        .alert("Reset Account", isPresented: $showResetConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Reset & Sign Out", role: .destructive) {
+                performReset()
+            }
+        } message: {
+            Text("This will delete all your local data, remote data, and return you to the setup screen. This action cannot be undone.")
+        }
     }
 
     private func exportCSV() {
@@ -255,6 +282,30 @@ struct SettingsView: View {
             importResult = result.error ?? "Import failed"
         }
         showImportResult = true
+    }
+
+    private func performReset() {
+        // 1. Mark all entries as deleted
+        let allEntries = viewModel.store.allEntries()
+        for entry in allEntries {
+            viewModel.store.softDelete(entry)
+        }
+
+        // 2. Sync deletions to Supabase
+        viewModel.syncWithSupabase()
+
+        // 3. Reset profile flags
+        viewModel.store.updateProfile { profile in
+            profile.isSetupComplete = false
+            profile.appleUserId = nil
+            profile.email = nil
+        }
+
+        // 4. Clear auth tokens (sign out)
+        KeychainService.clearAuthTokens()
+
+        // Note: The app will need to be relaunched or the auth state will need to be observed
+        // to trigger navigation back to login/onboarding
     }
 }
 

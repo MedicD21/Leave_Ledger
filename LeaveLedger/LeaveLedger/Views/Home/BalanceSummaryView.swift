@@ -6,35 +6,42 @@ struct BalanceSummaryView: View {
     let lastPaydayDate: Date
     let forecastAsOfDate: Date
     let forecastMode: AppViewModel.ForecastMode
+    let enabledLeaveTypes: [LeaveType]
     let onForecastModeChange: (AppViewModel.ForecastMode) -> Void
 
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                BalanceCard(
-                    title: "Comp",
-                    official: officialBalance.comp,
-                    forecast: forecastBalance.comp,
-                    lastPayday: lastPaydayDate,
-                    forecastDate: forecastAsOfDate,
-                    color: .green
-                )
-                BalanceCard(
-                    title: "Vacation",
-                    official: officialBalance.vacation,
-                    forecast: forecastBalance.vacation,
-                    lastPayday: lastPaydayDate,
-                    forecastDate: forecastAsOfDate,
-                    color: .blue
-                )
-                BalanceCard(
-                    title: "Sick",
-                    official: officialBalance.sick,
-                    forecast: forecastBalance.sick,
-                    lastPayday: lastPaydayDate,
-                    forecastDate: forecastAsOfDate,
-                    color: .purple
-                )
+                if enabledLeaveTypes.contains(.comp) {
+                    BalanceCard(
+                        title: "Comp",
+                        official: officialBalance.comp,
+                        forecast: forecastBalance.comp,
+                        lastPayday: lastPaydayDate,
+                        forecastDate: forecastAsOfDate,
+                        color: .green
+                    )
+                }
+                if enabledLeaveTypes.contains(.vacation) {
+                    BalanceCard(
+                        title: "Vacation",
+                        official: officialBalance.vacation,
+                        forecast: forecastBalance.vacation,
+                        lastPayday: lastPaydayDate,
+                        forecastDate: forecastAsOfDate,
+                        color: .blue
+                    )
+                }
+                if enabledLeaveTypes.contains(.sick) {
+                    BalanceCard(
+                        title: "Sick",
+                        official: officialBalance.sick,
+                        forecast: forecastBalance.sick,
+                        lastPayday: lastPaydayDate,
+                        forecastDate: forecastAsOfDate,
+                        color: .purple
+                    )
+                }
             }
 
             // Forecast mode picker

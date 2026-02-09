@@ -12,5 +12,6 @@ enum Logger {
     static let viewModel = OSLog(subsystem: subsystem, category: "ViewModel")
     static let network = OSLog(subsystem: subsystem, category: "Network")
     static let keychain = OSLog(subsystem: subsystem, category: "Keychain")
+    static let auth = OSLog(subsystem: subsystem, category: "Auth")
     static let general = OSLog(subsystem: subsystem, category: "General")
 }

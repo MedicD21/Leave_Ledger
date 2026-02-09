@@ -16,18 +16,53 @@ final class UserProfile {
     var createdAt: Date
     var updatedAt: Date
 
+    // MARK: - Authentication fields
+    var appleUserId: String?
+    var email: String?
+    var isAuthenticated: Bool
+
+    // MARK: - Onboarding completion
+    var isSetupComplete: Bool
+
+    // MARK: - Pay period configuration
+    var payPeriodType: String
+    var payPeriodInterval: Int
+
+    // MARK: - Enabled leave types
+    var compEnabled: Bool
+    var vacationEnabled: Bool
+    var sickEnabled: Bool
+
+    // Helper computed property
+    var enabledLeaveTypes: [LeaveType] {
+        var types: [LeaveType] = []
+        if compEnabled { types.append(.comp) }
+        if vacationEnabled { types.append(.vacation) }
+        if sickEnabled { types.append(.sick) }
+        return types
+    }
+
     init(
         id: UUID = UUID(),
         anchorPayday: Date = DateUtils.makeDate(2026, 2, 6),
-        sickStartBalance: Decimal = Decimal(string: "801.84")!,
-        vacStartBalance: Decimal = Decimal(string: "33.72")!,
-        compStartBalance: Decimal = Decimal(string: "0.25")!,
-        sickAccrualRate: Decimal = Decimal(string: "7.88")!,
-        vacAccrualRate: Decimal = Decimal(string: "6.46")!,
+        sickStartBalance: Decimal = 0,
+        vacStartBalance: Decimal = 0,
+        compStartBalance: Decimal = 0,
+        sickAccrualRate: Decimal = 0,
+        vacAccrualRate: Decimal = 0,
         enforceQuarterIncrements: Bool = true,
         icalToken: String = UUID().uuidString,
         createdAt: Date = Date(),
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        appleUserId: String? = nil,
+        email: String? = nil,
+        isAuthenticated: Bool = false,
+        isSetupComplete: Bool = false,
+        payPeriodType: String = "biweekly",
+        payPeriodInterval: Int = 14,
+        compEnabled: Bool = true,
+        vacationEnabled: Bool = true,
+        sickEnabled: Bool = true
     ) {
         self.id = id
         self.anchorPayday = anchorPayday
@@ -40,6 +75,15 @@ final class UserProfile {
         self.icalToken = icalToken
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.appleUserId = appleUserId
+        self.email = email
+        self.isAuthenticated = isAuthenticated
+        self.isSetupComplete = isSetupComplete
+        self.payPeriodType = payPeriodType
+        self.payPeriodInterval = payPeriodInterval
+        self.compEnabled = compEnabled
+        self.vacationEnabled = vacationEnabled
+        self.sickEnabled = sickEnabled
 
         // Validate anchor payday on initialization
         validateAnchorPayday()

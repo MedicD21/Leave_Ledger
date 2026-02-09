@@ -30,8 +30,9 @@ struct EntryEditorView: View {
             let h = NSDecimalNumber(decimal: entry.hours).doubleValue
             _hoursText = State(initialValue: String(format: "%.2f", h))
         } else {
+            let defaultLeaveType = viewModel.profile.enabledLeaveTypes.first ?? .comp
             _date = State(initialValue: initialDate)
-            _leaveType = State(initialValue: .comp)
+            _leaveType = State(initialValue: defaultLeaveType)
             _action = State(initialValue: .used)
             _hours = State(initialValue: Decimal(string: "8.00")!)
             _adjustmentSign = State(initialValue: .positive)
@@ -58,7 +59,7 @@ struct EntryEditorView: View {
                     DatePicker("Date", selection: $date, displayedComponents: .date)
 
                     Picker("Leave Type", selection: $leaveType) {
-                        ForEach(LeaveType.allCases) { type in
+                        ForEach(viewModel.profile.enabledLeaveTypes) { type in
                             Text(type.displayName).tag(type)
                         }
                     }

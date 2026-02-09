@@ -31,6 +31,16 @@
 		A10016000000000000000016 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20016000000000000000016 /* SettingsView.swift */; };
 		A10017000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20017000000000000000017 /* Assets.xcassets */; };
 		A10018000000000000000018 /* BalanceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018000000000000000018 /* BalanceEngineTests.swift */; };
+		CB60272D2F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027292F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift */; };
+		CB60272E2F3A569C00B137C8 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027262F3A569C00B137C8 /* LoginView.swift */; };
+		CB60272F2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB60272B2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift */; };
+		CB6027302F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB60272A2F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift */; };
+		CB6027312F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027282F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift */; };
+		CB6027322F3A569C00B137C8 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027272F3A569C00B137C8 /* OnboardingContainerView.swift */; };
+		CB6027342F3A572B00B137C8 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027332F3A572B00B137C8 /* AuthViewModel.swift */; };
+		CB6027362F3A575000B137C8 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027352F3A575000B137C8 /* OnboardingState.swift */; };
+		CB6027382F3A575F00B137C8 /* PayPeriodType.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027372F3A575F00B137C8 /* PayPeriodType.swift */; };
+		CB60273A2F3A578200B137C8 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027392F3A578200B137C8 /* AuthService.swift */; };
 		CBDA0B6D2F39317B00BEB3B7 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */; };
 		CBDA0B6F2F39319500BEB3B7 /* ErrorReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */; };
 		CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */; };
@@ -75,9 +85,20 @@
 		A2001A00000000000000001A /* LeaveLedgerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeaveLedgerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2001B00000000000000001B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2001C00000000000000001C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		CB6027262F3A569C00B137C8 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		CB6027272F3A569C00B137C8 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
+		CB6027282F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep1PayPeriodView.swift; sourceTree = "<group>"; };
+		CB6027292F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep2LeaveTypesView.swift; sourceTree = "<group>"; };
+		CB60272A2F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep3StartingBalancesView.swift; sourceTree = "<group>"; };
+		CB60272B2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep4AccrualRatesView.swift; sourceTree = "<group>"; };
+		CB6027332F3A572B00B137C8 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		CB6027352F3A575000B137C8 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
+		CB6027372F3A575F00B137C8 /* PayPeriodType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPeriodType.swift; sourceTree = "<group>"; };
+		CB6027392F3A578200B137C8 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorReporter.swift; sourceTree = "<group>"; };
 		CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportService.swift; sourceTree = "<group>"; };
+		CBDA0B722F3986C900BEB3B7 /* LeaveLedger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LeaveLedger.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +131,7 @@
 		A70002000000000000000002 /* LeaveLedger */ = {
 			isa = PBXGroup;
 			children = (
+				CBDA0B722F3986C900BEB3B7 /* LeaveLedger.entitlements */,
 				A70003000000000000000003 /* App */,
 				A70004000000000000000004 /* Models */,
 				A70005000000000000000005 /* Services */,
@@ -134,6 +156,8 @@
 		A70004000000000000000004 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				CB6027372F3A575F00B137C8 /* PayPeriodType.swift */,
+				CB6027352F3A575000B137C8 /* OnboardingState.swift */,
 				A20002000000000000000002 /* LeaveType.swift */,
 				A20003000000000000000003 /* LeaveEntry.swift */,
 				A20004000000000000000004 /* PayPeriod.swift */,
@@ -145,6 +169,7 @@
 		A70005000000000000000005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CB6027392F3A578200B137C8 /* AuthService.swift */,
 				CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */,
 				CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */,
 				A20006000000000000000006 /* BalanceEngine.swift */,
@@ -170,6 +195,7 @@
 		A70007000000000000000007 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				CB6027332F3A572B00B137C8 /* AuthViewModel.swift */,
 				A2000E00000000000000000E /* AppViewModel.swift */,
 			);
 			path = ViewModels;
@@ -178,6 +204,7 @@
 		A70008000000000000000008 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				CB60272C2F3A569C00B137C8 /* Auth */,
 				A70009000000000000000009 /* Calendar */,
 				A7000A00000000000000000A /* Components */,
 				A7000B00000000000000000B /* Home */,
@@ -245,6 +272,19 @@
 				A2001A00000000000000001A /* LeaveLedgerTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CB60272C2F3A569C00B137C8 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				CB6027262F3A569C00B137C8 /* LoginView.swift */,
+				CB6027272F3A569C00B137C8 /* OnboardingContainerView.swift */,
+				CB6027282F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift */,
+				CB6027292F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift */,
+				CB60272A2F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift */,
+				CB60272B2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -340,10 +380,18 @@
 			files = (
 				A10001000000000000000001 /* LeaveLedgerApp.swift in Sources */,
 				CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */,
+				CB60272D2F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift in Sources */,
+				CB60272E2F3A569C00B137C8 /* LoginView.swift in Sources */,
+				CB60272F2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift in Sources */,
+				CB6027302F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift in Sources */,
+				CB6027312F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift in Sources */,
+				CB6027322F3A569C00B137C8 /* OnboardingContainerView.swift in Sources */,
 				A10002000000000000000002 /* LeaveType.swift in Sources */,
 				A10003000000000000000003 /* LeaveEntry.swift in Sources */,
 				A10004000000000000000004 /* PayPeriod.swift in Sources */,
 				A10005000000000000000005 /* UserProfile.swift in Sources */,
+				CB6027342F3A572B00B137C8 /* AuthViewModel.swift in Sources */,
+				CB6027382F3A575F00B137C8 /* PayPeriodType.swift in Sources */,
 				A10006000000000000000006 /* BalanceEngine.swift in Sources */,
 				A10007000000000000000007 /* DataStore.swift in Sources */,
 				A10008000000000000000008 /* ExportService.swift in Sources */,
@@ -357,10 +405,12 @@
 				A1000E00000000000000000E /* AppViewModel.swift in Sources */,
 				A1000F00000000000000000F /* CalendarGridView.swift in Sources */,
 				A10010000000000000000010 /* MainTabView.swift in Sources */,
+				CB60273A2F3A578200B137C8 /* AuthService.swift in Sources */,
 				A10011000000000000000011 /* BalanceSummaryView.swift in Sources */,
 				A10012000000000000000012 /* DayDetailSheet.swift in Sources */,
 				A10013000000000000000013 /* EntryEditorView.swift in Sources */,
 				A10014000000000000000014 /* HomeView.swift in Sources */,
+				CB6027362F3A575000B137C8 /* OnboardingState.swift in Sources */,
 				A10015000000000000000015 /* LedgerView.swift in Sources */,
 				A10016000000000000000016 /* SettingsView.swift in Sources */,
 			);
@@ -515,6 +565,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = LeaveLedger/LeaveLedger.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 286LKF859M;
@@ -547,6 +598,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = LeaveLedger/LeaveLedger.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 286LKF859M;

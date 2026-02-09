@@ -8,6 +8,7 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>leaveLedger</string>
+                <string>com.leaveLedger.auth</string>
             </array>
             <key>CFBundleURLName</key>
             <string>com.leaveLedger.app</string>

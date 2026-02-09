@@ -16,6 +16,7 @@ struct HomeView: View {
                 lastPaydayDate: viewModel.lastPaydayDate,
                 forecastAsOfDate: viewModel.forecastAsOfDate,
                 forecastMode: viewModel.forecastMode,
+                enabledLeaveTypes: viewModel.profile.enabledLeaveTypes,
                 onForecastModeChange: { viewModel.setForecastMode($0) }
             )
 
