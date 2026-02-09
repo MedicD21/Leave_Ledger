@@ -33,6 +33,7 @@
 		A10018000000000000000018 /* BalanceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018000000000000000018 /* BalanceEngineTests.swift */; };
 		CBDA0B6D2F39317B00BEB3B7 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */; };
 		CBDA0B6F2F39319500BEB3B7 /* ErrorReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */; };
+		CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		A2001C00000000000000001C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorReporter.swift; sourceTree = "<group>"; };
+		CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 		A70005000000000000000005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */,
 				CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */,
 				A20006000000000000000006 /* BalanceEngine.swift */,
 				A20007000000000000000007 /* DataStore.swift */,
@@ -336,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10001000000000000000001 /* LeaveLedgerApp.swift in Sources */,
+				CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */,
 				A10002000000000000000002 /* LeaveType.swift in Sources */,
 				A10003000000000000000003 /* LeaveEntry.swift in Sources */,
 				A10004000000000000000004 /* PayPeriod.swift in Sources */,
@@ -510,6 +514,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 286LKF859M;
@@ -526,7 +531,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -541,6 +546,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 286LKF859M;
@@ -557,7 +563,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.leaveLedger.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

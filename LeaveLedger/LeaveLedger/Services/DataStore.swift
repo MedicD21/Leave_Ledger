@@ -292,4 +292,61 @@ struct RemoteLeaveEntry: Codable {
         case updatedAt = "updated_at"
         case deletedAt = "deleted_at"
     }
+
+    // Custom decoder to handle date-only format for 'date' field
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        userId = try container.decode(UUID.self, forKey: .userId)
+        leaveType = try container.decode(String.self, forKey: .leaveType)
+        action = try container.decode(String.self, forKey: .action)
+        hours = try container.decode(Decimal.self, forKey: .hours)
+        adjustmentSign = try container.decodeIfPresent(String.self, forKey: .adjustmentSign)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes)
+        source = try container.decode(String.self, forKey: .source)
+
+        // Helper function to parse ISO8601 dates with or without fractional seconds
+        func parseISO8601(_ string: String) -> Date? {
+            let formatterWithFractional = ISO8601DateFormatter()
+            formatterWithFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = formatterWithFractional.date(from: string) {
+                return date
+            }
+
+            let formatterWithoutFractional = ISO8601DateFormatter()
+            formatterWithoutFractional.formatOptions = [.withInternetDateTime]
+            return formatterWithoutFractional.date(from: string)
+        }
+
+        // Decode timestamp fields using ISO8601
+        let createdAtString = try container.decode(String.self, forKey: .createdAt)
+        guard let createdAtDate = parseISO8601(createdAtString) else {
+            throw DecodingError.dataCorruptedError(forKey: .createdAt, in: container, debugDescription: "Invalid ISO8601 date format")
+        }
+        createdAt = createdAtDate
+
+        let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
+        guard let updatedAtDate = parseISO8601(updatedAtString) else {
+            throw DecodingError.dataCorruptedError(forKey: .updatedAt, in: container, debugDescription: "Invalid ISO8601 date format")
+        }
+        updatedAt = updatedAtDate
+
+        if let deletedAtString = try container.decodeIfPresent(String.self, forKey: .deletedAt) {
+            deletedAt = parseISO8601(deletedAtString)
+        } else {
+            deletedAt = nil
+        }
+
+        // Decode date-only field using a simple date formatter
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        let dateString = try container.decode(String.self, forKey: .date)
+        guard let dateValue = dateFormatter.date(from: dateString) else {
+            throw DecodingError.dataCorruptedError(forKey: .date, in: container, debugDescription: "Invalid date format, expected yyyy-MM-dd")
+        }
+        date = dateValue
+    }
 }

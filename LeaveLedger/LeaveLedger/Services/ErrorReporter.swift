@@ -55,11 +55,7 @@ enum ErrorReporter {
             os_log(logLevel, log: Logger.general, "Context: %@", contextString)
         }
 
-        // TODO: Integrate with third-party crash reporting service here
-        // Example integrations:
-        // - Sentry.captureError(error)
-        // - Crashlytics.record(error: error)
-        // - Bugsnag.notifyError(error)
+        // Future: Integrate with third-party crash reporting service if needed
     }
 
     /// Reports a message without an associated error
@@ -101,15 +97,14 @@ enum ErrorReporter {
             os_log(logLevel, log: Logger.general, "Context: %@", contextString)
         }
 
-        // TODO: Integrate with third-party service
+        // Future: Integrate with third-party service if needed
     }
 
     /// Sets a user identifier for error tracking (useful for debugging specific user issues)
     /// - Parameter userId: The user identifier
     static func setUser(_ userId: String) {
         os_log(.info, log: Logger.general, "User identified: %@", userId)
-        // TODO: Set user in crash reporting service
-        // Example: Sentry.configureScope { $0.setUser(User(userId: userId)) }
+        // Future: Set user in crash reporting service if needed
     }
 
     /// Adds breadcrumb information for debugging error context
@@ -128,8 +123,7 @@ enum ErrorReporter {
         }
         os_log(.debug, log: Logger.general, "%@", logMessage)
 
-        // TODO: Add breadcrumb to crash reporting service
-        // Example: Crashlytics.record(breadcrumb: Breadcrumb(message: message))
+        // Future: Add breadcrumb to crash reporting service if needed
     }
 }
 

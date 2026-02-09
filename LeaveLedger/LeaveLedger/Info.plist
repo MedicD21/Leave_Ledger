@@ -13,6 +13,15 @@
             <string>com.leaveLedger.app</string>
         </dict>
     </array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string></string>
+		<key>UIImageName</key>
+		<string></string>
+	</dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>SUPABASE_URL</key>
 	<string>$(SUPABASE_URL)</string>
 	<key>SUPABASE_HOST</key>

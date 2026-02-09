@@ -22,6 +22,8 @@ struct ExportService {
     }
 
     func exportCSV(entries: [LeaveEntry]) -> URL? {
+        os_log(.info, log: Logger.export, "Starting CSV export with %d entries", entries.count)
+
         var csv = "Date,Leave Type,Action,Hours,Adjustment Sign,Notes,Source,Created At\n"
 
         let dateFormatter = DateFormatter()
@@ -40,11 +42,23 @@ struct ExportService {
             csv += "\(date),\(type),\(action),\(hours),\(sign),\(notes),\(source),\(created)\n"
         }
 
-        let tempDir = FileManager.default.temporaryDirectory
-        let fileURL = tempDir.appendingPathComponent("LeaveLedger_Export_\(dateFormatter.string(from: Date())).csv")
+        guard let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            os_log(.error, log: Logger.export, "Failed to access documents directory")
+            return nil
+        }
+        let fileURL = documentsDir.appendingPathComponent("LeaveLedger_Export_\(dateFormatter.string(from: Date())).csv")
+
+        os_log(.info, log: Logger.export, "CSV content size: %d bytes", csv.utf8.count)
 
         do {
             try csv.write(to: fileURL, atomically: true, encoding: .utf8)
+
+            // Set file attributes to ensure it's accessible for sharing
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            var mutableURL = fileURL
+            try mutableURL.setResourceValues(resourceValues)
+
             os_log(.info, log: Logger.export, "CSV export successful: %@", fileURL.path)
             return fileURL
         } catch {
@@ -59,12 +73,14 @@ struct ExportService {
     private enum PDFConstants {
         static let pageWidth: CGFloat = 612      // 8.5 inches at 72 DPI
         static let pageHeight: CGFloat = 792     // 11 inches at 72 DPI
-        static let margin: CGFloat = 40
-        static let titleFontSize: CGFloat = 18
-        static let headerFontSize: CGFloat = 14
-        static let subtitleFontSize: CGFloat = 11
+        static let margin: CGFloat = 50
+        static let titleFontSize: CGFloat = 20
+        static let headerFontSize: CGFloat = 16
+        static let subtitleFontSize: CGFloat = 10
         static let bodyFontSize: CGFloat = 11
-        static let tableFontSize: CGFloat = 9
+        static let tableFontSize: CGFloat = 10
+        static let lineWidth: CGFloat = 1.0
+        static let lightLineWidth: CGFloat = 0.5
     }
 
     func exportPDF(
@@ -91,71 +107,119 @@ struct ExportService {
             // Title
             let titleAttrs: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: PDFConstants.titleFontSize),
-                .foregroundColor: UIColor.label
+                .foregroundColor: UIColor.black
             ]
             let title = "Leave Ledger - \(monthStr)"
             title.draw(at: CGPoint(x: margin, y: yPos), withAttributes: titleAttrs)
-            yPos += 30
+            yPos += 28
 
             let subtitleAttrs: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: PDFConstants.subtitleFontSize),
-                .foregroundColor: UIColor.secondaryLabel
+                .foregroundColor: UIColor.gray
             ]
             "Generated: \(dateStr)".draw(at: CGPoint(x: margin, y: yPos), withAttributes: subtitleAttrs)
+            yPos += 20
+
+            // Horizontal line under header
+            drawHorizontalLine(from: margin, to: pageWidth - margin, at: yPos, width: PDFConstants.lineWidth, color: UIColor.black)
             yPos += 25
 
             // Balance Summary
             let headerAttrs: [NSAttributedString.Key: Any] = [
                 .font: UIFont.boldSystemFont(ofSize: PDFConstants.headerFontSize),
-                .foregroundColor: UIColor.label
+                .foregroundColor: UIColor.black
             ]
             "Balance Summary".draw(at: CGPoint(x: margin, y: yPos), withAttributes: headerAttrs)
+            yPos += 25
+
+            // Balance table headers
+            let tableHeaderAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: PDFConstants.bodyFontSize),
+                .foregroundColor: UIColor.darkGray
+            ]
+            let bodyAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: PDFConstants.bodyFontSize, weight: .regular),
+                .foregroundColor: UIColor.black
+            ]
+
+            // Column positions
+            let col1X = margin + 10
+            let col2X = margin + 200
+            let col3X = margin + 320
+
+            // Draw table header background
+            let headerRect = CGRect(x: margin, y: yPos - 2, width: pageWidth - 2 * margin, height: 20)
+            UIColor(white: 0.95, alpha: 1.0).setFill()
+            UIBezierPath(rect: headerRect).fill()
+
+            "Leave Type".draw(at: CGPoint(x: col1X, y: yPos), withAttributes: tableHeaderAttrs)
+            "Official".draw(at: CGPoint(x: col2X, y: yPos), withAttributes: tableHeaderAttrs)
+            "Forecast".draw(at: CGPoint(x: col3X, y: yPos), withAttributes: tableHeaderAttrs)
             yPos += 22
 
-            let bodyAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedDigitSystemFont(ofSize: PDFConstants.bodyFontSize, weight: .regular),
-                .foregroundColor: UIColor.label
+            // Light line under header
+            drawHorizontalLine(from: margin, to: pageWidth - margin, at: yPos, width: PDFConstants.lightLineWidth, color: UIColor.lightGray)
+            yPos += 12
+
+            // Balance rows
+            let balanceData = [
+                ("Comp", officialBalance.comp, forecastBalance.comp),
+                ("Vacation", officialBalance.vacation, forecastBalance.vacation),
+                ("Sick", officialBalance.sick, forecastBalance.sick)
             ]
 
-            let balanceLines = [
-                "                  Official      Forecast",
-                String(format: "Comp:            %8.2fh     %8.2fh",
-                       NSDecimalNumber(decimal: officialBalance.comp).doubleValue,
-                       NSDecimalNumber(decimal: forecastBalance.comp).doubleValue),
-                String(format: "Vacation:        %8.2fh     %8.2fh",
-                       NSDecimalNumber(decimal: officialBalance.vacation).doubleValue,
-                       NSDecimalNumber(decimal: forecastBalance.vacation).doubleValue),
-                String(format: "Sick:            %8.2fh     %8.2fh",
-                       NSDecimalNumber(decimal: officialBalance.sick).doubleValue,
-                       NSDecimalNumber(decimal: forecastBalance.sick).doubleValue)
-            ]
-
-            for line in balanceLines {
-                line.draw(at: CGPoint(x: margin, y: yPos), withAttributes: bodyAttrs)
-                yPos += 16
+            for (type, official, forecast) in balanceData {
+                type.draw(at: CGPoint(x: col1X, y: yPos), withAttributes: bodyAttrs)
+                String(format: "%.2f hours", NSDecimalNumber(decimal: official).doubleValue)
+                    .draw(at: CGPoint(x: col2X, y: yPos), withAttributes: bodyAttrs)
+                String(format: "%.2f hours", NSDecimalNumber(decimal: forecast).doubleValue)
+                    .draw(at: CGPoint(x: col3X, y: yPos), withAttributes: bodyAttrs)
+                yPos += 18
             }
-            yPos += 15
+
+            // Bottom line of balance table
+            drawHorizontalLine(from: margin, to: pageWidth - margin, at: yPos, width: PDFConstants.lightLineWidth, color: UIColor.lightGray)
+            yPos += 30
 
             // Entries table
             "Entries".draw(at: CGPoint(x: margin, y: yPos), withAttributes: headerAttrs)
+            yPos += 25
+
+            // Entries table header
+            let entryHeaderAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: PDFConstants.tableFontSize),
+                .foregroundColor: UIColor.darkGray
+            ]
+            let entryBodyAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: PDFConstants.tableFontSize, weight: .regular),
+                .foregroundColor: UIColor.black
+            ]
+
+            // Column positions for entries
+            let entryCol1X = margin + 10      // Date
+            let entryCol2X = margin + 110     // Type
+            let entryCol3X = margin + 200     // Action
+            let entryCol4X = margin + 280     // Hours
+            let entryCol5X = margin + 350     // Notes
+
+            // Draw entry header background
+            let entryHeaderRect = CGRect(x: margin, y: yPos - 2, width: pageWidth - 2 * margin, height: 20)
+            UIColor(white: 0.95, alpha: 1.0).setFill()
+            UIBezierPath(rect: entryHeaderRect).fill()
+
+            "Date".draw(at: CGPoint(x: entryCol1X, y: yPos), withAttributes: entryHeaderAttrs)
+            "Type".draw(at: CGPoint(x: entryCol2X, y: yPos), withAttributes: entryHeaderAttrs)
+            "Action".draw(at: CGPoint(x: entryCol3X, y: yPos), withAttributes: entryHeaderAttrs)
+            "Hours".draw(at: CGPoint(x: entryCol4X, y: yPos), withAttributes: entryHeaderAttrs)
+            "Notes".draw(at: CGPoint(x: entryCol5X, y: yPos), withAttributes: entryHeaderAttrs)
             yPos += 22
 
-            let tableHeaderAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: PDFConstants.tableFontSize, weight: .semibold),
-                .foregroundColor: UIColor.secondaryLabel
-            ]
-
-            let tableHeader = "\(pad("Date", to: 12)) \(pad("Type", to: 10)) \(pad("Action", to: 10)) \(pad("Hours", to: 8))  Notes"
-            tableHeader.draw(at: CGPoint(x: margin, y: yPos), withAttributes: tableHeaderAttrs)
-            yPos += 14
-
-            let entryAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.monospacedSystemFont(ofSize: PDFConstants.tableFontSize, weight: .regular),
-                .foregroundColor: UIColor.label
-            ]
+            // Light line under header
+            drawHorizontalLine(from: margin, to: pageWidth - margin, at: yPos, width: PDFConstants.lightLineWidth, color: UIColor.lightGray)
+            yPos += 12
 
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.dateFormat = "MMM d, yyyy"
 
             // Filter entries for the displayed month
             let cal = Calendar.current
@@ -166,9 +230,11 @@ struct ExportService {
                 .sorted { $0.date < $1.date }
 
             for entry in monthEntries {
-                if yPos > pageHeight - margin - 20 {
+                if yPos > pageHeight - margin - 30 {
                     context.beginPage()
                     yPos = margin
+                    "Entries (continued)".draw(at: CGPoint(x: margin, y: yPos), withAttributes: headerAttrs)
+                    yPos += 25
                 }
 
                 let h = NSDecimalNumber(decimal: entry.hours).doubleValue
@@ -176,23 +242,46 @@ struct ExportService {
                 let dateStr = dateFormatter.string(from: entry.date)
                 let typeStr = entry.leaveType.displayName
                 let actionStr = entry.action.displayName
-                let hoursStr = String(format: "%7.2f", h)
+                let hoursStr = String(format: "%@%.2f", sign, h)
                 let notes = entry.notes ?? ""
-                let line = "\(pad(dateStr, to: 12)) \(pad(typeStr, to: 10)) \(pad(actionStr, to: 10)) \(sign)\(hoursStr)  \(notes)"
-                line.draw(at: CGPoint(x: margin, y: yPos), withAttributes: entryAttrs)
-                yPos += 13
+
+                dateStr.draw(at: CGPoint(x: entryCol1X, y: yPos), withAttributes: entryBodyAttrs)
+                typeStr.draw(at: CGPoint(x: entryCol2X, y: yPos), withAttributes: entryBodyAttrs)
+                actionStr.draw(at: CGPoint(x: entryCol3X, y: yPos), withAttributes: entryBodyAttrs)
+                hoursStr.draw(at: CGPoint(x: entryCol4X, y: yPos), withAttributes: entryBodyAttrs)
+
+                // Truncate notes if too long
+                let maxNotesLength = 30
+                let displayNotes = notes.count > maxNotesLength ? String(notes.prefix(maxNotesLength)) + "..." : notes
+                displayNotes.draw(at: CGPoint(x: entryCol5X, y: yPos), withAttributes: entryBodyAttrs)
+
+                yPos += 16
             }
 
             if monthEntries.isEmpty {
-                "No entries for this month.".draw(at: CGPoint(x: margin, y: yPos), withAttributes: subtitleAttrs)
+                yPos += 10
+                "No entries for this month.".draw(at: CGPoint(x: margin + 10, y: yPos), withAttributes: subtitleAttrs)
+            } else {
+                // Bottom line of entries table
+                drawHorizontalLine(from: margin, to: pageWidth - margin, at: yPos, width: PDFConstants.lightLineWidth, color: UIColor.lightGray)
             }
         }
 
-        let tempDir = FileManager.default.temporaryDirectory
-        let fileURL = tempDir.appendingPathComponent("LeaveLedger_\(monthStr.replacingOccurrences(of: " ", with: "_")).pdf")
+        guard let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            os_log(.error, log: Logger.export, "Failed to access documents directory")
+            return nil
+        }
+        let fileURL = documentsDir.appendingPathComponent("LeaveLedger_\(monthStr.replacingOccurrences(of: " ", with: "_")).pdf")
 
         do {
             try data.write(to: fileURL)
+
+            // Set file attributes to ensure it's accessible for sharing
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            var mutableURL = fileURL
+            try mutableURL.setResourceValues(resourceValues)
+
             os_log(.info, log: Logger.export, "PDF export successful: %@", fileURL.path)
             return fileURL
         } catch {
@@ -207,6 +296,15 @@ struct ExportService {
             return String(trimmed.prefix(width))
         }
         return trimmed + String(repeating: " ", count: width - trimmed.count)
+    }
+
+    private func drawHorizontalLine(from x1: CGFloat, to x2: CGFloat, at y: CGFloat, width: CGFloat, color: UIColor) {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: x1, y: y))
+        path.addLine(to: CGPoint(x: x2, y: y))
+        color.setStroke()
+        path.lineWidth = width
+        path.stroke()
     }
 }
 

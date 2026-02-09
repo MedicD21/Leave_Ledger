@@ -1,12 +1,21 @@
 import SwiftUI
+import UniformTypeIdentifiers
+
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
+}
 
 struct SettingsView: View {
     @Bindable var viewModel: AppViewModel
     @State private var showExportSheet = false
-    @State private var showCSVShare = false
-    @State private var csvURL: URL?
-    @State private var showPDFShare = false
-    @State private var pdfURL: URL?
+    @State private var csvURL: IdentifiableURL?
+    @State private var pdfURL: IdentifiableURL?
+    @State private var backupURL: IdentifiableURL?
+    @State private var showImportPicker = false
+    @State private var showImportConfirmation = false
+    @State private var importResult: String?
+    @State private var showImportResult = false
 
     // Editable fields
     @State private var anchorDate: Date
@@ -18,13 +27,13 @@ struct SettingsView: View {
 
     init(viewModel: AppViewModel) {
         self.viewModel = viewModel
-        let profile = viewModel.profile!
+        let profile = viewModel.profile ?? UserProfile(id: KeychainService.getUserId())
         _anchorDate = State(initialValue: profile.anchorPayday)
-        _sickStart = State(initialValue: "\(NSDecimalNumber(decimal: profile.sickStartBalance).doubleValue)")
-        _vacStart = State(initialValue: "\(NSDecimalNumber(decimal: profile.vacStartBalance).doubleValue)")
-        _compStart = State(initialValue: "\(NSDecimalNumber(decimal: profile.compStartBalance).doubleValue)")
-        _sickRate = State(initialValue: "\(NSDecimalNumber(decimal: profile.sickAccrualRate).doubleValue)")
-        _vacRate = State(initialValue: "\(NSDecimalNumber(decimal: profile.vacAccrualRate).doubleValue)")
+        _sickStart = State(initialValue: String(format: "%.2f", NSDecimalNumber(decimal: profile.sickStartBalance).doubleValue))
+        _vacStart = State(initialValue: String(format: "%.2f", NSDecimalNumber(decimal: profile.vacStartBalance).doubleValue))
+        _compStart = State(initialValue: String(format: "%.2f", NSDecimalNumber(decimal: profile.compStartBalance).doubleValue))
+        _sickRate = State(initialValue: String(format: "%.2f", NSDecimalNumber(decimal: profile.sickAccrualRate).doubleValue))
+        _vacRate = State(initialValue: String(format: "%.2f", NSDecimalNumber(decimal: profile.vacAccrualRate).doubleValue))
     }
 
     var body: some View {
@@ -107,6 +116,19 @@ struct SettingsView: View {
 
             Section("Data & Backup") {
                 Button {
+                    exportBackup()
+                } label: {
+                    Label("Export Complete Backup", systemImage: "doc.badge.arrow.up")
+                }
+
+                Button {
+                    showImportConfirmation = true
+                } label: {
+                    Label("Import Backup", systemImage: "doc.badge.arrow.down")
+                }
+                .foregroundStyle(.orange)
+
+                Button {
                     exportCSV()
                 } label: {
                     Label("Export CSV", systemImage: "tablecells")
@@ -163,14 +185,33 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
-        .sheet(isPresented: $showCSVShare) {
-            if let url = csvURL {
-                ShareSheet(items: [url])
+        .sheet(item: $csvURL) { identifiableURL in
+            ShareSheet(items: [identifiableURL.url])
+        }
+        .sheet(item: $pdfURL) { identifiableURL in
+            ShareSheet(items: [identifiableURL.url])
+        }
+        .sheet(item: $backupURL) { identifiableURL in
+            ShareSheet(items: [identifiableURL.url])
+        }
+        .sheet(isPresented: $showImportPicker) {
+            DocumentPicker { url in
+                performImport(from: url)
             }
         }
-        .sheet(isPresented: $showPDFShare) {
-            if let url = pdfURL {
-                ShareSheet(items: [url])
+        .alert("Import Backup", isPresented: $showImportConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Import", role: .destructive) {
+                showImportPicker = true
+            }
+        } message: {
+            Text("This will replace ALL existing data with the backup. This action cannot be undone. Make sure you have exported your current data first.")
+        }
+        .alert("Import Result", isPresented: $showImportResult) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if let result = importResult {
+                Text(result)
             }
         }
     }
@@ -178,8 +219,7 @@ struct SettingsView: View {
     private func exportCSV() {
         let service = ExportService()
         if let url = service.exportCSV(entries: viewModel.entries) {
-            csvURL = url
-            showCSVShare = true
+            csvURL = IdentifiableURL(url: url)
         }
     }
 
@@ -191,9 +231,30 @@ struct SettingsView: View {
             forecastBalance: viewModel.forecastBalance,
             month: viewModel.displayedMonth
         ) {
-            pdfURL = url
-            showPDFShare = true
+            pdfURL = IdentifiableURL(url: url)
         }
+    }
+
+    private func exportBackup() {
+        guard let profile = viewModel.profile else { return }
+        let service = ImportExportService()
+        if let url = service.exportBackup(profile: profile, entries: viewModel.entries) {
+            backupURL = IdentifiableURL(url: url)
+        }
+    }
+
+    private func performImport(from url: URL) {
+        let service = ImportExportService()
+        let result = service.importBackup(from: url, into: viewModel.store)
+
+        if result.success {
+            importResult = "Successfully imported profile and \(result.entriesImported) entries."
+            viewModel.refreshData()
+            viewModel.syncWithSupabase()
+        } else {
+            importResult = result.error ?? "Import failed"
+        }
+        showImportResult = true
     }
 }
 
@@ -221,4 +282,34 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+struct DocumentPicker: UIViewControllerRepresentable {
+    let onPick: (URL) -> Void
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.json])
+        picker.delegate = context.coordinator
+        picker.allowsMultipleSelection = false
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onPick: onPick)
+    }
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let onPick: (URL) -> Void
+
+        init(onPick: @escaping (URL) -> Void) {
+            self.onPick = onPick
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            guard let url = urls.first else { return }
+            onPick(url)
+        }
+    }
 }
