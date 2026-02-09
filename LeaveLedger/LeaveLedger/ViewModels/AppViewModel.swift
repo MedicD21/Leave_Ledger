@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import SwiftData
+import OSLog
 
 @Observable
 final class AppViewModel {
@@ -10,7 +11,7 @@ final class AppViewModel {
 
     var selectedDate: Date = Date()
     var displayedMonth: Date = Date()
-    var forecastMode: ForecastMode = .endOfMonth
+    var forecastMode: ForecastMode = .nextPayday
 
     var entries: [LeaveEntry] = []
     var profile: UserProfile!
@@ -23,7 +24,7 @@ final class AppViewModel {
     enum ForecastMode: String, CaseIterable {
         case today = "Today"
         case selectedDay = "Selected Day"
-        case endOfMonth = "End of Month"
+        case nextPayday = "Next Payday"
     }
 
     init(store: DataStore? = nil) {
@@ -65,9 +66,8 @@ final class AppViewModel {
             forecastAsOfDate = today
         case .selectedDay:
             forecastAsOfDate = selectedDate
-        case .endOfMonth:
-            let range = DateUtils.monthRange(for: displayedMonth)
-            forecastAsOfDate = range.end
+        case .nextPayday:
+            forecastAsOfDate = PayPeriodService.nextPaydayOnOrAfter(date: today, anchorPayday: profile.anchorPayday)
         }
 
         forecastBalance = engine.forecastBalance(asOf: forecastAsOfDate, entries: entries)
@@ -149,12 +149,20 @@ final class AppViewModel {
     // MARK: - Navigation
 
     func goToNextMonth() {
-        displayedMonth = Calendar.current.date(byAdding: .month, value: 1, to: displayedMonth)!
+        guard let nextMonth = Calendar.current.date(byAdding: .month, value: 1, to: displayedMonth) else {
+            os_log(.error, log: Logger.viewModel, "Failed to calculate next month from %@", displayedMonth as CVarArg)
+            return
+        }
+        displayedMonth = nextMonth
         recalculateBalances()
     }
 
     func goToPreviousMonth() {
-        displayedMonth = Calendar.current.date(byAdding: .month, value: -1, to: displayedMonth)!
+        guard let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: displayedMonth) else {
+            os_log(.error, log: Logger.viewModel, "Failed to calculate previous month from %@", displayedMonth as CVarArg)
+            return
+        }
+        displayedMonth = previousMonth
         recalculateBalances()
     }
 

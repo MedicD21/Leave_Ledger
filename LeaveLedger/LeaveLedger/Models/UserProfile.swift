@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import OSLog
 
 @Model
 final class UserProfile {
@@ -39,5 +40,33 @@ final class UserProfile {
         self.icalToken = icalToken
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+
+        // Validate anchor payday on initialization
+        validateAnchorPayday()
+    }
+
+    /// Validates that the anchor payday is reasonable.
+    /// Logs a warning if the anchor payday is not a Friday, as the pay period
+    /// model assumes biweekly Friday paydays.
+    func validateAnchorPayday() {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: anchorPayday)
+
+        // Weekday: 1 = Sunday, 6 = Friday
+        if weekday != 6 {
+            os_log(.info, log: Logger.general,
+                   "Anchor payday is not a Friday (weekday: %d). The pay period model assumes biweekly Friday paydays.",
+                   weekday)
+        }
+
+        // Validate that balances are not negative
+        if sickStartBalance < 0 || vacStartBalance < 0 || compStartBalance < 0 {
+            os_log(.error, log: Logger.general, "Starting balance contains negative values")
+        }
+
+        // Validate that accrual rates are not negative
+        if sickAccrualRate < 0 || vacAccrualRate < 0 {
+            os_log(.error, log: Logger.general, "Accrual rate contains negative values")
+        }
     }
 }

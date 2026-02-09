@@ -12,6 +12,9 @@ struct ICSService {
         let from = fromDate ?? DateUtils.addDays(Date(), -365)
         let to = toDate ?? DateUtils.addDays(Date(), 365)
 
+        // Use the user's current timezone instead of hardcoding
+        let timeZoneIdentifier = TimeZone.current.identifier
+
         var ics = """
         BEGIN:VCALENDAR
         VERSION:2.0
@@ -19,7 +22,7 @@ struct ICSService {
         CALSCALE:GREGORIAN
         METHOD:PUBLISH
         X-WR-CALNAME:Leave Ledger
-        X-WR-TIMEZONE:America/New_York
+        X-WR-TIMEZONE:\(timeZoneIdentifier)
 
         """
 

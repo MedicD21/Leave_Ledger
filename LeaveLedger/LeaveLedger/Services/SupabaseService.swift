@@ -1,8 +1,11 @@
 import Foundation
+import OSLog
 
 /// Configuration for Supabase connection.
 /// Values should be set in Info.plist or .xcconfig.
 enum SupabaseConfig {
+    /// Timeout for network requests in seconds
+    static let requestTimeout: TimeInterval = 30
     static var url: String {
         let direct = resolvedValue("SUPABASE_URL")
         if !direct.isEmpty {
@@ -45,6 +48,7 @@ final class SupabaseService {
     private(set) var syncError: String?
 
     private let userId: UUID
+    private let syncLock = NSLock()
 
     init(userId: UUID) {
         self.userId = userId
@@ -59,10 +63,21 @@ final class SupabaseService {
     func pushEntries(_ entries: [LeaveEntry], completion: @escaping (Bool) -> Void) {
         guard isConfigured else {
             syncError = "Supabase not configured"
+            os_log(.error, log: Logger.sync, "Push entries failed: Supabase not configured")
             completion(false)
             return
         }
+
+        guard syncLock.try() else {
+            syncError = "Sync already in progress"
+            os_log(.default, log: Logger.sync, "Push entries skipped: sync already in progress")
+            completion(false)
+            return
+        }
+        defer { syncLock.unlock() }
+
         isSyncing = true
+        os_log(.info, log: Logger.sync, "Starting push of %d entries", entries.count)
 
         // Build URL for upsert
         guard let url = URL(string: "\(SupabaseConfig.url)/rest/v1/leave_entries") else {
@@ -96,12 +111,14 @@ final class SupabaseService {
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
             syncError = "Failed to serialize entries"
             isSyncing = false
+            os_log(.error, log: Logger.sync, "Failed to serialize entries for push")
             completion(false)
             return
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
@@ -113,16 +130,21 @@ final class SupabaseService {
             DispatchQueue.main.async {
                 self?.isSyncing = false
                 if let error = error {
-                    self?.syncError = error.localizedDescription
+                    let errorMsg = error.localizedDescription
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "Push entries network error: %@", errorMsg)
                     completion(false)
                 } else if let httpResp = response as? HTTPURLResponse, httpResp.statusCode < 300 {
                     self?.syncError = nil
+                    os_log(.info, log: Logger.sync, "Push entries successful")
                     completion(true)
                 } else {
                     let status = (response as? HTTPURLResponse)?.statusCode ?? 0
                     let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
                     let detail = body.isEmpty ? "" : " - \(body)"
-                    self?.syncError = "Push failed with status \(status)\(detail)"
+                    let errorMsg = "Push failed with status \(status)\(detail)"
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "%@", errorMsg)
                     completion(false)
                 }
             }
@@ -133,10 +155,13 @@ final class SupabaseService {
     func pullEntries(completion: @escaping ([RemoteLeaveEntry]?) -> Void) {
         guard isConfigured else {
             syncError = "Supabase not configured"
+            os_log(.error, log: Logger.sync, "Pull entries failed: Supabase not configured")
             completion(nil)
             return
         }
+
         isSyncing = true
+        os_log(.info, log: Logger.sync, "Starting pull entries")
 
         var urlString = "\(SupabaseConfig.url)/rest/v1/leave_entries?user_id=eq.\(userId.uuidString)&order=updated_at.desc"
         if let lastSync = lastSyncAt {
@@ -147,11 +172,13 @@ final class SupabaseService {
         guard let url = URL(string: urlString) else {
             syncError = "Invalid URL"
             isSyncing = false
+            os_log(.error, log: Logger.sync, "Pull entries failed: Invalid URL")
             completion(nil)
             return
         }
 
         var request = URLRequest(url: url)
+        request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
         request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
@@ -160,19 +187,24 @@ final class SupabaseService {
             DispatchQueue.main.async {
                 self?.isSyncing = false
                 if let error = error {
-                    self?.syncError = error.localizedDescription
+                    let errorMsg = error.localizedDescription
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "Pull entries network error: %@", errorMsg)
                     completion(nil)
                     return
                 }
                 if let httpResp = response as? HTTPURLResponse, httpResp.statusCode >= 300 {
                     let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
                     let detail = body.isEmpty ? "" : " - \(body)"
-                    self?.syncError = "Pull failed with status \(httpResp.statusCode)\(detail)"
+                    let errorMsg = "Pull failed with status \(httpResp.statusCode)\(detail)"
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "%@", errorMsg)
                     completion(nil)
                     return
                 }
                 guard let data = data else {
                     self?.syncError = "No data received"
+                    os_log(.error, log: Logger.sync, "Pull entries failed: No data received")
                     completion(nil)
                     return
                 }
@@ -184,9 +216,15 @@ final class SupabaseService {
                     self?.lastSyncAt = Date()
                     UserDefaults.standard.set(self?.lastSyncAt, forKey: "lastSyncAt")
                     self?.syncError = nil
+                    os_log(.info, log: Logger.sync, "Pull entries successful: %d entries", entries.count)
                     completion(entries)
                 } catch {
-                    self?.syncError = "Decode error: \(error.localizedDescription)"
+                    let responseBody = String(data: data, encoding: .utf8) ?? "<unable to decode response>"
+                    let errorMsg = "Decode error: \(error.localizedDescription)"
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "%@", errorMsg)
+                    os_log(.error, log: Logger.sync, "Decode error details: %@", String(describing: error))
+                    os_log(.error, log: Logger.sync, "Response body: %@", responseBody)
                     completion(nil)
                 }
             }
@@ -225,14 +263,18 @@ final class SupabaseService {
     private func ensureProfile(_ profile: UserProfile, completion: @escaping (Bool) -> Void) {
         guard isConfigured else {
             syncError = "Supabase not configured"
+            os_log(.error, log: Logger.sync, "Ensure profile failed: Supabase not configured")
             completion(false)
             return
         }
+
         isSyncing = true
+        os_log(.info, log: Logger.sync, "Ensuring profile sync")
 
         guard let url = URL(string: "\(SupabaseConfig.url)/rest/v1/profiles") else {
             syncError = "Invalid Supabase URL"
             isSyncing = false
+            os_log(.error, log: Logger.sync, "Ensure profile failed: Invalid Supabase URL")
             completion(false)
             return
         }
@@ -251,12 +293,14 @@ final class SupabaseService {
         guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
             syncError = "Failed to serialize profile"
             isSyncing = false
+            os_log(.error, log: Logger.sync, "Failed to serialize profile for sync")
             completion(false)
             return
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.timeoutInterval = SupabaseConfig.requestTimeout
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
@@ -268,16 +312,21 @@ final class SupabaseService {
             DispatchQueue.main.async {
                 self?.isSyncing = false
                 if let error = error {
-                    self?.syncError = error.localizedDescription
+                    let errorMsg = error.localizedDescription
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "Profile sync network error: %@", errorMsg)
                     completion(false)
                 } else if let httpResp = response as? HTTPURLResponse, httpResp.statusCode < 300 {
                     self?.syncError = nil
+                    os_log(.info, log: Logger.sync, "Profile sync successful")
                     completion(true)
                 } else {
                     let status = (response as? HTTPURLResponse)?.statusCode ?? 0
                     let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
                     let detail = body.isEmpty ? "" : " - \(body)"
-                    self?.syncError = "Profile upsert failed with status \(status)\(detail)"
+                    let errorMsg = "Profile upsert failed with status \(status)\(detail)"
+                    self?.syncError = errorMsg
+                    os_log(.error, log: Logger.sync, "%@", errorMsg)
                     completion(false)
                 }
             }

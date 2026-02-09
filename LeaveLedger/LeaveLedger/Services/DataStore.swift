@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import Observation
+import OSLog
 
 @Observable
 final class DataStore {
@@ -37,18 +38,32 @@ final class DataStore {
     func getOrCreateProfile() -> UserProfile {
         let deviceUserId = KeychainService.getUserId()
         let descriptor = FetchDescriptor<UserProfile>()
-        let profiles = (try? context.fetch(descriptor)) ?? []
-        if let profile = profiles.first {
-            if profile.id != deviceUserId {
-                profile.id = deviceUserId
-                profile.updatedAt = Date()
-                try? context.save()
+
+        do {
+            let profiles = try context.fetch(descriptor)
+            if let profile = profiles.first {
+                if profile.id != deviceUserId {
+                    profile.id = deviceUserId
+                    profile.updatedAt = Date()
+                    do {
+                        try context.save()
+                    } catch {
+                        os_log(.error, log: Logger.dataStore, "Failed to save profile ID update: %@", error.localizedDescription)
+                    }
+                }
+                return profile
             }
-            return profile
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch profiles: %@", error.localizedDescription)
         }
+
         let profile = UserProfile(id: deviceUserId)
         context.insert(profile)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save new profile: %@", error.localizedDescription)
+        }
         return profile
     }
 
@@ -56,7 +71,11 @@ final class DataStore {
         let profile = getOrCreateProfile()
         update(profile)
         profile.updatedAt = Date()
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save profile update: %@", error.localizedDescription)
+        }
     }
 
     // MARK: - Entries
@@ -66,32 +85,53 @@ final class DataStore {
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
         descriptor.predicate = #Predicate<LeaveEntry> { $0.deletedAt == nil }
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch all entries: %@", error.localizedDescription)
+            return []
+        }
     }
 
     func entries(for date: Date) -> [LeaveEntry] {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: date)
-        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else {
+            os_log(.error, log: Logger.dataStore, "Failed to calculate end date for entries query")
+            return []
+        }
         var descriptor = FetchDescriptor<LeaveEntry>(
             sortBy: [SortDescriptor(\.date)]
         )
         descriptor.predicate = #Predicate<LeaveEntry> {
             $0.date >= start && $0.date < end && $0.deletedAt == nil
         }
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch entries for date: %@", error.localizedDescription)
+            return []
+        }
     }
 
     func entries(from start: Date, to end: Date) -> [LeaveEntry] {
         let startDay = Calendar.current.startOfDay(for: start)
-        let endDay = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: end))!
+        guard let endDay = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: end)) else {
+            os_log(.error, log: Logger.dataStore, "Failed to calculate end date for date range query")
+            return []
+        }
         var descriptor = FetchDescriptor<LeaveEntry>(
             sortBy: [SortDescriptor(\.date)]
         )
         descriptor.predicate = #Predicate<LeaveEntry> {
             $0.date >= startDay && $0.date < endDay && $0.deletedAt == nil
         }
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch entries for date range: %@", error.localizedDescription)
+            return []
+        }
     }
 
     func entries(forLeaveType type: String) -> [LeaveEntry] {
@@ -101,41 +141,71 @@ final class DataStore {
         descriptor.predicate = #Predicate<LeaveEntry> {
             $0.leaveTypeRaw == type && $0.deletedAt == nil
         }
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch entries for leave type %@: %@", type, error.localizedDescription)
+            return []
+        }
     }
 
     func addEntry(_ entry: LeaveEntry) {
         context.insert(entry)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save new entry: %@", error.localizedDescription)
+        }
     }
 
     func updateEntry(_ entry: LeaveEntry, update: (LeaveEntry) -> Void) {
         update(entry)
         entry.updatedAt = Date()
         entry.isDirty = true
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save entry update: %@", error.localizedDescription)
+        }
     }
 
     func softDelete(_ entry: LeaveEntry) {
         entry.deletedAt = Date()
         entry.updatedAt = Date()
         entry.isDirty = true
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save soft delete: %@", error.localizedDescription)
+        }
     }
 
     func dirtyEntries() -> [LeaveEntry] {
         var descriptor = FetchDescriptor<LeaveEntry>()
         descriptor.predicate = #Predicate<LeaveEntry> { $0.isDirty == true }
-        return (try? context.fetch(descriptor)) ?? []
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch dirty entries: %@", error.localizedDescription)
+            return []
+        }
     }
 
     func markClean(_ entry: LeaveEntry) {
         entry.isDirty = false
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to mark entry as clean: %@", error.localizedDescription)
+        }
     }
 
     func save() {
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save context: %@", error.localizedDescription)
+        }
     }
 
     // MARK: - Sync support
@@ -145,42 +215,51 @@ final class DataStore {
             let idToFind = remote.id
             var descriptor = FetchDescriptor<LeaveEntry>()
             descriptor.predicate = #Predicate<LeaveEntry> { $0.id == idToFind }
-            let existing = (try? context.fetch(descriptor))?.first
 
-            if let existing = existing {
-                // Last-write-wins
-                if remote.updatedAt > existing.updatedAt {
-                    existing.date = remote.date
-                    existing.leaveTypeRaw = remote.leaveType
-                    existing.actionRaw = remote.action
-                    existing.hours = remote.hours
-                    existing.adjustmentSignRaw = remote.adjustmentSign
-                    existing.notes = remote.notes
-                    existing.sourceRaw = remote.source
-                    existing.updatedAt = remote.updatedAt
-                    existing.deletedAt = remote.deletedAt
-                    existing.isDirty = false
+            do {
+                let results = try context.fetch(descriptor)
+                if let existing = results.first {
+                    // Last-write-wins
+                    if remote.updatedAt > existing.updatedAt {
+                        existing.date = remote.date
+                        existing.leaveTypeRaw = remote.leaveType
+                        existing.actionRaw = remote.action
+                        existing.hours = remote.hours
+                        existing.adjustmentSignRaw = remote.adjustmentSign
+                        existing.notes = remote.notes
+                        existing.sourceRaw = remote.source
+                        existing.updatedAt = remote.updatedAt
+                        existing.deletedAt = remote.deletedAt
+                        existing.isDirty = false
+                    }
+                } else {
+                    let entry = LeaveEntry(
+                        id: remote.id,
+                        userId: remote.userId,
+                        date: remote.date,
+                        leaveType: LeaveType(rawValue: remote.leaveType) ?? .comp,
+                        action: LeaveAction(rawValue: remote.action) ?? .used,
+                        hours: remote.hours,
+                        adjustmentSign: remote.adjustmentSign.flatMap { AdjustmentSign(rawValue: $0) },
+                        notes: remote.notes,
+                        source: EntrySource(rawValue: remote.source) ?? .user,
+                        createdAt: remote.createdAt,
+                        updatedAt: remote.updatedAt,
+                        deletedAt: remote.deletedAt,
+                        isDirty: false
+                    )
+                    context.insert(entry)
                 }
-            } else {
-                let entry = LeaveEntry(
-                    id: remote.id,
-                    userId: remote.userId,
-                    date: remote.date,
-                    leaveType: LeaveType(rawValue: remote.leaveType) ?? .comp,
-                    action: LeaveAction(rawValue: remote.action) ?? .used,
-                    hours: remote.hours,
-                    adjustmentSign: remote.adjustmentSign.flatMap { AdjustmentSign(rawValue: $0) },
-                    notes: remote.notes,
-                    source: EntrySource(rawValue: remote.source) ?? .user,
-                    createdAt: remote.createdAt,
-                    updatedAt: remote.updatedAt,
-                    deletedAt: remote.deletedAt,
-                    isDirty: false
-                )
-                context.insert(entry)
+            } catch {
+                os_log(.error, log: Logger.dataStore, "Failed to fetch entry for upsert (id: %@): %@", idToFind.uuidString, error.localizedDescription)
             }
         }
-        try? context.save()
+
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save remote entries: %@", error.localizedDescription)
+        }
     }
 }
 

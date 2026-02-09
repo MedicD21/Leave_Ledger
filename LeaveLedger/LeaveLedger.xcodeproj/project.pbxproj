@@ -31,6 +31,8 @@
 		A10016000000000000000016 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20016000000000000000016 /* SettingsView.swift */; };
 		A10017000000000000000017 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20017000000000000000017 /* Assets.xcassets */; };
 		A10018000000000000000018 /* BalanceEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20018000000000000000018 /* BalanceEngineTests.swift */; };
+		CBDA0B6D2F39317B00BEB3B7 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */; };
+		CBDA0B6F2F39319500BEB3B7 /* ErrorReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +74,8 @@
 		A2001A00000000000000001A /* LeaveLedgerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LeaveLedgerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2001B00000000000000001B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A2001C00000000000000001C /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorReporter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +143,7 @@
 		A70005000000000000000005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */,
 				A20006000000000000000006 /* BalanceEngine.swift */,
 				A20007000000000000000007 /* DataStore.swift */,
 				A20008000000000000000008 /* ExportService.swift */,
@@ -153,6 +158,7 @@
 		A70006000000000000000006 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */,
 				A2000D00000000000000000D /* DateUtils.swift */,
 			);
 			path = Utilities;
@@ -338,7 +344,9 @@
 				A10007000000000000000007 /* DataStore.swift in Sources */,
 				A10008000000000000000008 /* ExportService.swift in Sources */,
 				A10009000000000000000009 /* ICSService.swift in Sources */,
+				CBDA0B6D2F39317B00BEB3B7 /* Logger.swift in Sources */,
 				A1000A00000000000000000A /* KeychainService.swift in Sources */,
+				CBDA0B6F2F39319500BEB3B7 /* ErrorReporter.swift in Sources */,
 				A1000B00000000000000000B /* PayPeriodService.swift in Sources */,
 				A1000C00000000000000000C /* SupabaseService.swift in Sources */,
 				A1000D00000000000000000D /* DateUtils.swift in Sources */,

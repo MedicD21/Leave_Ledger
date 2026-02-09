@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 enum DateUtils {
     private static var calendar: Calendar {
@@ -13,7 +14,12 @@ enum DateUtils {
         components.month = month
         components.day = day
         components.hour = 12
-        return calendar.date(from: components)!
+        guard let date = calendar.date(from: components) else {
+            os_log(.error, log: Logger.general, "Failed to create date from components: %d-%d-%d", year, month, day)
+            // Return a fallback date to prevent crashes
+            return Date()
+        }
+        return date
     }
 
     static func startOfDay(_ date: Date) -> Date {
@@ -21,13 +27,22 @@ enum DateUtils {
     }
 
     static func addDays(_ date: Date, _ days: Int) -> Date {
-        calendar.date(byAdding: .day, value: days, to: date)!
+        guard let newDate = calendar.date(byAdding: .day, value: days, to: date) else {
+            os_log(.error, log: Logger.general, "Failed to add %d days to date", days)
+            return date // Return original date as fallback
+        }
+        return newDate
     }
 
     static func daysBetween(_ from: Date, _ to: Date) -> Int {
         let fromStart = startOfDay(from)
         let toStart = startOfDay(to)
-        return calendar.dateComponents([.day], from: fromStart, to: toStart).day!
+        let components = calendar.dateComponents([.day], from: fromStart, to: toStart)
+        guard let days = components.day else {
+            os_log(.error, log: Logger.general, "Failed to calculate days between dates")
+            return 0
+        }
+        return days
     }
 
     static func isSameDay(_ a: Date, _ b: Date) -> Bool {
@@ -44,18 +59,28 @@ enum DateUtils {
 
     static func monthRange(for date: Date) -> (start: Date, end: Date) {
         let comps = calendar.dateComponents([.year, .month], from: date)
-        let start = calendar.date(from: comps)!
-        let end = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: start)!
+        guard let start = calendar.date(from: comps),
+              let end = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: start) else {
+            os_log(.error, log: Logger.general, "Failed to calculate month range for date")
+            return (date, date) // Return same date as fallback
+        }
         return (start, end)
     }
 
     static func daysInMonth(for date: Date) -> Int {
-        calendar.range(of: .day, in: .month, for: date)!.count
+        guard let range = calendar.range(of: .day, in: .month, for: date) else {
+            os_log(.error, log: Logger.general, "Failed to get days in month for date")
+            return 30 // Return reasonable default
+        }
+        return range.count
     }
 
     static func firstWeekday(of date: Date) -> Int {
         let comps = calendar.dateComponents([.year, .month], from: date)
-        let first = calendar.date(from: comps)!
+        guard let first = calendar.date(from: comps) else {
+            os_log(.error, log: Logger.general, "Failed to get first day of month")
+            return 1 // Return Sunday as default
+        }
         return calendar.component(.weekday, from: first) // 1=Sun ... 7=Sat
     }
 
