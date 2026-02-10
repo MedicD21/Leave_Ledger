@@ -1,0 +1,4 @@
+# Supabase Project Configuration
+
+[functions.leave-ics]
+verify_jwt = false  # Allow calendar apps to access without auth headers

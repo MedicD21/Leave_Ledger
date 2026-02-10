@@ -228,6 +228,8 @@ final class AppViewModel {
             p.icalToken = UUID().uuidString
         }
         refreshData()
+        // Immediately sync to Supabase to invalidate old token
+        syncWithSupabase()
     }
 
     // MARK: - Utilities

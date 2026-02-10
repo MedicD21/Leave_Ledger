@@ -5,9 +5,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
 serve(async (req: Request) => {
   try {
     const url = new URL(req.url);
@@ -16,6 +13,13 @@ serve(async (req: Request) => {
     if (!token) {
       return new Response("Missing token parameter", { status: 400 });
     }
+
+    // Use Supabase's automatic environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    console.log("Looking up token:", token);
+    console.log("Supabase URL:", supabaseUrl);
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -26,8 +30,17 @@ serve(async (req: Request) => {
       .eq("ical_token", token)
       .single();
 
+    console.log("Profile query result:", { profile, error: profileError });
+
     if (profileError || !profile) {
-      return new Response("Invalid token", { status: 401 });
+      console.error("Profile lookup failed:", profileError);
+      return new Response(JSON.stringify({
+        error: "Invalid token",
+        details: profileError?.message
+      }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     // Fetch all non-deleted entries for this user
