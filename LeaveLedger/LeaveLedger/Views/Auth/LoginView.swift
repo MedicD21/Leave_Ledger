@@ -47,7 +47,7 @@ struct LoginView: View {
                         authViewModel.handleSignInResult(result)
                     }
                 )
-                .signInWithAppleButtonStyle(.black)
+                .signInWithAppleButtonStyle(.white)
                 .frame(height: 50)
                 .padding(.horizontal, 40)
 

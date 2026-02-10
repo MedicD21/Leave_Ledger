@@ -91,8 +91,18 @@ final class SupabaseService {
             value ?? NSNull()
         }
 
+        let iso8601Formatter = ISO8601DateFormatter()
+
         let payload: [[String: Any]] = entries.map { entry in
-            [
+            let updatedAtString = iso8601Formatter.string(from: entry.updatedAt)
+
+            // Log details for each entry being pushed
+            os_log(.info, log: Logger.sync, "Pushing entry %@ with:", String(entry.id.uuidString.prefix(8)))
+            os_log(.info, log: Logger.sync, "  Date: %@", DateUtils.isoDate(entry.date))
+            os_log(.info, log: Logger.sync, "  Local updatedAt (Date): %@", entry.updatedAt as CVarArg)
+            os_log(.info, log: Logger.sync, "  Serialized updatedAt (ISO8601): %@", updatedAtString)
+
+            return [
                 "id": entry.id.uuidString,
                 "user_id": entry.userId.uuidString,
                 "date": DateUtils.isoDate(entry.date),
@@ -102,9 +112,9 @@ final class SupabaseService {
                 "adjustment_sign": valueOrNull(entry.adjustmentSignRaw),
                 "notes": valueOrNull(entry.notes),
                 "source": entry.sourceRaw,
-                "created_at": ISO8601DateFormatter().string(from: entry.createdAt),
-                "updated_at": ISO8601DateFormatter().string(from: entry.updatedAt),
-                "deleted_at": valueOrNull(entry.deletedAt.map { ISO8601DateFormatter().string(from: $0) })
+                "created_at": iso8601Formatter.string(from: entry.createdAt),
+                "updated_at": updatedAtString,
+                "deleted_at": valueOrNull(entry.deletedAt.map { iso8601Formatter.string(from: $0) })
             ]
         }
 
@@ -249,6 +259,8 @@ final class SupabaseService {
         let profile = store.getOrCreateProfile()
         ensureProfile(profile) { [weak self] ready in
             guard ready else { return }
+
+            // Sync entries
             let dirty = store.dirtyEntries()
             if dirty.isEmpty {
                 self?.pullEntries { remote in
@@ -270,7 +282,171 @@ final class SupabaseService {
                     }
                 }
             }
+
+            // Sync notes (always do full sync for simplicity)
+            self?.syncNotes(store: store)
         }
+    }
+
+    // MARK: - Date Notes Sync
+
+    /// Syncs all date notes with Supabase
+    private func syncNotes(store: DataStore) {
+        let allNotes = store.allNotes()
+        if !allNotes.isEmpty {
+            pushNotes(allNotes) { [weak self] _ in
+                self?.pullNotes { remote in
+                    if let remote = remote {
+                        store.upsertNotesFromRemote(remote)
+                    }
+                }
+            }
+        } else {
+            pullNotes { remote in
+                if let remote = remote {
+                    store.upsertNotesFromRemote(remote)
+                }
+            }
+        }
+    }
+
+    /// Pushes date notes to Supabase.
+    private func pushNotes(_ notes: [DateNote], completion: @escaping (Bool) -> Void) {
+        guard isConfigured else {
+            os_log(.error, log: Logger.sync, "Push notes failed: Supabase not configured")
+            completion(false)
+            return
+        }
+
+        guard !notes.isEmpty else {
+            completion(true)
+            return
+        }
+
+        os_log(.info, log: Logger.sync, "Starting push of %d notes", notes.count)
+
+        guard let url = URL(string: "\(SupabaseConfig.url)/rest/v1/date_notes") else {
+            os_log(.error, log: Logger.sync, "Push notes failed: Invalid URL")
+            completion(false)
+            return
+        }
+
+        func valueOrNull(_ value: Any?) -> Any {
+            value ?? NSNull()
+        }
+
+        let payload: [[String: Any]] = notes.map { note in
+            [
+                "id": note.id.uuidString,
+                "user_id": note.userId.uuidString,
+                "date": DateUtils.isoDate(note.date),
+                "title": note.title,
+                "note_text": note.noteText,
+                "color_hex": note.colorHex,
+                "created_at": ISO8601DateFormatter().string(from: note.createdAt),
+                "updated_at": ISO8601DateFormatter().string(from: note.updatedAt),
+                "deleted_at": valueOrNull(note.deletedAt.map { ISO8601DateFormatter().string(from: $0) })
+            ]
+        }
+
+        guard let body = try? JSONSerialization.data(withJSONObject: payload) else {
+            os_log(.error, log: Logger.sync, "Failed to serialize notes for push")
+            completion(false)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = SupabaseConfig.requestTimeout
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
+
+        if let token = KeychainService.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        }
+
+        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        request.httpBody = body
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    os_log(.error, log: Logger.sync, "Push notes network error: %@", error.localizedDescription)
+                    completion(false)
+                } else if let httpResp = response as? HTTPURLResponse, httpResp.statusCode < 300 {
+                    os_log(.info, log: Logger.sync, "Push notes successful")
+                    completion(true)
+                } else {
+                    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    os_log(.error, log: Logger.sync, "Push notes failed with status %d", status)
+                    completion(false)
+                }
+            }
+        }.resume()
+    }
+
+    /// Pulls date notes from Supabase.
+    private func pullNotes(completion: @escaping ([RemoteDateNote]?) -> Void) {
+        guard isConfigured else {
+            os_log(.error, log: Logger.sync, "Pull notes failed: Supabase not configured")
+            completion(nil)
+            return
+        }
+
+        os_log(.info, log: Logger.sync, "Starting pull notes")
+
+        let urlString = "\(SupabaseConfig.url)/rest/v1/date_notes?user_id=eq.\(userId.uuidString)&order=updated_at.desc"
+
+        guard let url = URL(string: urlString) else {
+            os_log(.error, log: Logger.sync, "Pull notes failed: Invalid URL")
+            completion(nil)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = SupabaseConfig.requestTimeout
+        request.setValue(SupabaseConfig.anonKey, forHTTPHeaderField: "apikey")
+
+        if let token = KeychainService.getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(SupabaseConfig.anonKey)", forHTTPHeaderField: "Authorization")
+            request.setValue(userId.uuidString, forHTTPHeaderField: "X-User-Id")
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    os_log(.error, log: Logger.sync, "Pull notes network error: %@", error.localizedDescription)
+                    completion(nil)
+                    return
+                }
+                if let httpResp = response as? HTTPURLResponse, httpResp.statusCode >= 300 {
+                    os_log(.error, log: Logger.sync, "Pull notes failed with status %d", httpResp.statusCode)
+                    completion(nil)
+                    return
+                }
+                guard let data = data else {
+                    os_log(.error, log: Logger.sync, "Pull notes failed: No data received")
+                    completion(nil)
+                    return
+                }
+
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                do {
+                    let notes = try decoder.decode([RemoteDateNote].self, from: data)
+                    os_log(.info, log: Logger.sync, "Pull notes successful: %d notes", notes.count)
+                    completion(notes)
+                } catch {
+                    os_log(.error, log: Logger.sync, "Decode notes error: %@", error.localizedDescription)
+                    completion(nil)
+                }
+            }
+        }.resume()
     }
 
     private func ensureProfile(_ profile: UserProfile, completion: @escaping (Bool) -> Void) {

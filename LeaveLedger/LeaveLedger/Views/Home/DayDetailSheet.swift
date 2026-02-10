@@ -4,8 +4,28 @@ struct DayDetailSheet: View {
     @Bindable var viewModel: AppViewModel
     let date: Date
     @Environment(\.dismiss) private var dismiss
-    @State private var showEntryEditor = false
-    @State private var editingEntry: LeaveEntry?
+
+    enum EditorMode: Identifiable {
+        case add
+        case edit(LeaveEntry)
+
+        var id: String {
+            switch self {
+            case .add: return "add"
+            case .edit(let entry): return entry.id.uuidString
+            }
+        }
+
+        var entry: LeaveEntry? {
+            switch self {
+            case .add: return nil
+            case .edit(let entry): return entry
+            }
+        }
+    }
+
+    @State private var editorMode: EditorMode?
+    @State private var showNoteEditor = false
 
     private var dayEntries: [LeaveEntry] {
         viewModel.entriesForDate(date)
@@ -13,6 +33,10 @@ struct DayDetailSheet: View {
 
     private var payPeriod: PayPeriod {
         viewModel.payPeriodFor(date: date)
+    }
+
+    private var dayNote: DateNote? {
+        viewModel.store.note(for: date)
     }
 
     var body: some View {
@@ -41,6 +65,18 @@ struct DayDetailSheet: View {
                                 .font(.subheadline.bold())
                         }
                     }
+
+                    // Add Note button
+                    Button {
+                        showNoteEditor = true
+                    } label: {
+                        HStack {
+                            Image(systemName: dayNote == nil ? "note.text.badge.plus" : "note.text")
+                                .foregroundStyle(.blue)
+                            Text(dayNote == nil ? "Add Note" : "View Note")
+                                .foregroundStyle(.blue)
+                        }
+                    }
                 }
 
                 // Forecast balances as of this date
@@ -49,6 +85,40 @@ struct DayDetailSheet: View {
                     BalanceRow(label: "Comp", value: forecast.comp, color: .green)
                     BalanceRow(label: "Vacation", value: forecast.vacation, color: .blue)
                     BalanceRow(label: "Sick", value: forecast.sick, color: .purple)
+                }
+
+                // Note (if exists)
+                if let note = dayNote {
+                    Section("Note") {
+                        Button {
+                            showNoteEditor = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Circle()
+                                    .fill(note.color)
+                                    .frame(width: 12, height: 12)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(note.title)
+                                        .font(.subheadline.bold())
+                                        .foregroundStyle(.primary)
+
+                                    Text(note.noteText)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
 
                 // Entries
@@ -63,8 +133,7 @@ struct DayDetailSheet: View {
                                 entry: entry,
                                 isPosted: viewModel.isPosted(entry),
                                 onEdit: {
-                                    editingEntry = entry
-                                    showEntryEditor = true
+                                    editorMode = .edit(entry)
                                 },
                                 onDelete: {
                                     viewModel.deleteEntry(entry)
@@ -82,18 +151,25 @@ struct DayDetailSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        editingEntry = nil
-                        showEntryEditor = true
+                        editorMode = .add
                     } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showEntryEditor) {
+            .sheet(item: $editorMode) { mode in
                 EntryEditorView(
                     viewModel: viewModel,
                     initialDate: date,
-                    editingEntry: editingEntry
+                    editingEntry: mode.entry
+                )
+            }
+            .sheet(isPresented: $showNoteEditor) {
+                NoteEditorView(
+                    store: viewModel.store,
+                    date: date,
+                    userId: viewModel.profile.id,
+                    editingNote: dayNote
                 )
             }
         }

@@ -9,7 +9,7 @@ final class DataStore {
     private let context: ModelContext
 
     init() {
-        let schema = Schema([LeaveEntry.self, UserProfile.self])
+        let schema = Schema([LeaveEntry.self, UserProfile.self, DateNote.self])
         let config = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -27,7 +27,7 @@ final class DataStore {
 
     // For testing
     init(inMemory: Bool) {
-        let schema = Schema([LeaveEntry.self, UserProfile.self])
+        let schema = Schema([LeaveEntry.self, UserProfile.self, DateNote.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             container = try ModelContainer(for: schema, configurations: [config])
@@ -167,8 +167,10 @@ final class DataStore {
         update(entry)
         entry.updatedAt = Date()
         entry.isDirty = true
+        os_log(.info, log: Logger.dataStore, "Marked entry %@ as dirty. Date: %@, isDirty: %d", entry.id.uuidString, entry.date.description, entry.isDirty)
         do {
             try context.save()
+            os_log(.info, log: Logger.dataStore, "Successfully saved entry update. Checking isDirty after save: %d", entry.isDirty)
         } catch {
             os_log(.error, log: Logger.dataStore, "Failed to save entry update: %@", error.localizedDescription)
         }
@@ -189,7 +191,12 @@ final class DataStore {
         var descriptor = FetchDescriptor<LeaveEntry>()
         descriptor.predicate = #Predicate<LeaveEntry> { $0.isDirty == true }
         do {
-            return try context.fetch(descriptor)
+            let results = try context.fetch(descriptor)
+            os_log(.info, log: Logger.dataStore, "Found %d dirty entries", results.count)
+            for entry in results {
+                os_log(.info, log: Logger.dataStore, "  Dirty entry: %@ - Date: %@", entry.id.uuidString, entry.date.description)
+            }
+            return results
         } catch {
             os_log(.error, log: Logger.dataStore, "Failed to fetch dirty entries: %@", error.localizedDescription)
             return []
@@ -213,9 +220,94 @@ final class DataStore {
         }
     }
 
+    // MARK: - Date Notes
+
+    func allNotes() -> [DateNote] {
+        var descriptor = FetchDescriptor<DateNote>(
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.predicate = #Predicate<DateNote> { $0.deletedAt == nil }
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch all notes: %@", error.localizedDescription)
+            return []
+        }
+    }
+
+    func note(for date: Date) -> DateNote? {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else {
+            os_log(.error, log: Logger.dataStore, "Failed to calculate end date for note query")
+            return nil
+        }
+        var descriptor = FetchDescriptor<DateNote>()
+        descriptor.predicate = #Predicate<DateNote> {
+            $0.date >= start && $0.date < end && $0.deletedAt == nil
+        }
+        do {
+            let results = try context.fetch(descriptor)
+            return results.first
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch note for date: %@", error.localizedDescription)
+            return nil
+        }
+    }
+
+    func notes(from start: Date, to end: Date) -> [DateNote] {
+        let startDay = Calendar.current.startOfDay(for: start)
+        guard let endDay = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: end)) else {
+            os_log(.error, log: Logger.dataStore, "Failed to calculate end date for notes range query")
+            return []
+        }
+        var descriptor = FetchDescriptor<DateNote>(
+            sortBy: [SortDescriptor(\.date)]
+        )
+        descriptor.predicate = #Predicate<DateNote> {
+            $0.date >= startDay && $0.date < endDay && $0.deletedAt == nil
+        }
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to fetch notes for date range: %@", error.localizedDescription)
+            return []
+        }
+    }
+
+    func addNote(_ note: DateNote) {
+        context.insert(note)
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save new note: %@", error.localizedDescription)
+        }
+    }
+
+    func updateNote(_ note: DateNote, update: (DateNote) -> Void) {
+        update(note)
+        note.updatedAt = Date()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save note update: %@", error.localizedDescription)
+        }
+    }
+
+    func deleteNote(_ note: DateNote) {
+        note.deletedAt = Date()
+        note.updatedAt = Date()
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save note deletion: %@", error.localizedDescription)
+        }
+    }
+
     // MARK: - Sync support
 
     func upsertFromRemote(_ remoteEntries: [RemoteLeaveEntry]) {
+        os_log(.info, log: Logger.dataStore, "Upserting %d remote entries", remoteEntries.count)
         for remote in remoteEntries {
             let idToFind = remote.id
             var descriptor = FetchDescriptor<LeaveEntry>()
@@ -224,8 +316,12 @@ final class DataStore {
             do {
                 let results = try context.fetch(descriptor)
                 if let existing = results.first {
+                    os_log(.info, log: Logger.dataStore, "  Entry %@ - Remote date: %@, Local date: %@", remote.id.uuidString, remote.date.description, existing.date.description)
+                    os_log(.info, log: Logger.dataStore, "  Remote updatedAt: %@, Local updatedAt: %@", remote.updatedAt.description, existing.updatedAt.description)
+
                     // Last-write-wins
                     if remote.updatedAt > existing.updatedAt {
+                        os_log(.info, log: Logger.dataStore, "  Remote is newer, updating local entry")
                         existing.date = remote.date
                         existing.leaveTypeRaw = remote.leaveType
                         existing.actionRaw = remote.action
@@ -236,6 +332,8 @@ final class DataStore {
                         existing.updatedAt = remote.updatedAt
                         existing.deletedAt = remote.deletedAt
                         existing.isDirty = false
+                    } else {
+                        os_log(.info, log: Logger.dataStore, "  Local is newer or same, keeping local entry")
                     }
                 } else {
                     let entry = LeaveEntry(
@@ -265,6 +363,130 @@ final class DataStore {
         } catch {
             os_log(.error, log: Logger.dataStore, "Failed to save remote entries: %@", error.localizedDescription)
         }
+    }
+
+    // MARK: - Sync support for notes
+
+    func upsertNotesFromRemote(_ remoteNotes: [RemoteDateNote]) {
+        for remote in remoteNotes {
+            let idToFind = remote.id
+            var descriptor = FetchDescriptor<DateNote>()
+            descriptor.predicate = #Predicate<DateNote> { $0.id == idToFind }
+
+            do {
+                let results = try context.fetch(descriptor)
+                if let existing = results.first {
+                    // Last-write-wins
+                    if remote.updatedAt > existing.updatedAt {
+                        existing.date = remote.date
+                        existing.title = remote.title
+                        existing.noteText = remote.noteText
+                        existing.colorHex = remote.colorHex
+                        existing.updatedAt = remote.updatedAt
+                        existing.deletedAt = remote.deletedAt
+                    }
+                } else {
+                    let note = DateNote(
+                        id: remote.id,
+                        userId: remote.userId,
+                        date: remote.date,
+                        title: remote.title,
+                        noteText: remote.noteText,
+                        colorHex: remote.colorHex,
+                        createdAt: remote.createdAt,
+                        updatedAt: remote.updatedAt,
+                        deletedAt: remote.deletedAt
+                    )
+                    context.insert(note)
+                }
+            } catch {
+                os_log(.error, log: Logger.dataStore, "Failed to fetch note for upsert (id: %@): %@", idToFind.uuidString, error.localizedDescription)
+            }
+        }
+
+        do {
+            try context.save()
+        } catch {
+            os_log(.error, log: Logger.dataStore, "Failed to save remote notes: %@", error.localizedDescription)
+        }
+    }
+}
+
+// DTO for remote date notes
+struct RemoteDateNote: Codable {
+    let id: UUID
+    let userId: UUID
+    let date: Date
+    let title: String
+    let noteText: String
+    let colorHex: String
+    let createdAt: Date
+    let updatedAt: Date
+    let deletedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case date
+        case title
+        case noteText = "note_text"
+        case colorHex = "color_hex"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case deletedAt = "deleted_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        userId = try container.decode(UUID.self, forKey: .userId)
+        title = try container.decode(String.self, forKey: .title)
+        noteText = try container.decode(String.self, forKey: .noteText)
+        colorHex = try container.decode(String.self, forKey: .colorHex)
+
+        // Helper function to parse ISO8601 dates with or without fractional seconds
+        func parseISO8601(_ string: String) -> Date? {
+            let formatterWithFractional = ISO8601DateFormatter()
+            formatterWithFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = formatterWithFractional.date(from: string) {
+                return date
+            }
+
+            let formatterWithoutFractional = ISO8601DateFormatter()
+            formatterWithoutFractional.formatOptions = [.withInternetDateTime]
+            return formatterWithoutFractional.date(from: string)
+        }
+
+        // Decode timestamp fields using ISO8601
+        let createdAtString = try container.decode(String.self, forKey: .createdAt)
+        guard let createdAtDate = parseISO8601(createdAtString) else {
+            throw DecodingError.dataCorruptedError(forKey: .createdAt, in: container, debugDescription: "Invalid ISO8601 date format")
+        }
+        createdAt = createdAtDate
+
+        let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
+        guard let updatedAtDate = parseISO8601(updatedAtString) else {
+            throw DecodingError.dataCorruptedError(forKey: .updatedAt, in: container, debugDescription: "Invalid ISO8601 date format")
+        }
+        updatedAt = updatedAtDate
+
+        if let deletedAtString = try container.decodeIfPresent(String.self, forKey: .deletedAt) {
+            deletedAt = parseISO8601(deletedAtString)
+        } else {
+            deletedAt = nil
+        }
+
+        // Decode date-only field using a simple date formatter
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+        let dateString = try container.decode(String.self, forKey: .date)
+        guard let dateValue = dateFormatter.date(from: dateString) else {
+            throw DecodingError.dataCorruptedError(forKey: .date, in: container, debugDescription: "Invalid date format, expected yyyy-MM-dd")
+        }
+        date = dateValue
     }
 }
 

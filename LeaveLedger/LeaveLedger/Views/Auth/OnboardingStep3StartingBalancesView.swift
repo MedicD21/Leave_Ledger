@@ -2,10 +2,11 @@ import SwiftUI
 
 struct OnboardingStep3StartingBalancesView: View {
     @ObservedObject var state: OnboardingState
+    @FocusState private var focusedField: Bool
 
-    @State private var compText: String = "0.00"
-    @State private var vacationText: String = "0.00"
-    @State private var sickText: String = "0.00"
+    @State private var compText: String = ""
+    @State private var vacationText: String = ""
+    @State private var sickText: String = ""
 
     var body: some View {
         Form {
@@ -21,21 +22,21 @@ struct OnboardingStep3StartingBalancesView: View {
 
             Section("Starting Balances (in hours)") {
                 if state.compEnabled {
-                    DecimalField(label: "Comp Time", text: $compText)
+                    DecimalField(label: "Comp Time", text: $compText, focused: $focusedField)
                         .onChange(of: compText) { _, newValue in
                             state.compStartBalance = Decimal(string: newValue) ?? 0
                         }
                 }
 
                 if state.vacationEnabled {
-                    DecimalField(label: "Vacation", text: $vacationText)
+                    DecimalField(label: "Vacation", text: $vacationText, focused: $focusedField)
                         .onChange(of: vacationText) { _, newValue in
                             state.vacationStartBalance = Decimal(string: newValue) ?? 0
                         }
                 }
 
                 if state.sickEnabled {
-                    DecimalField(label: "Sick Leave", text: $sickText)
+                    DecimalField(label: "Sick Leave", text: $sickText, focused: $focusedField)
                         .onChange(of: sickText) { _, newValue in
                             state.sickStartBalance = Decimal(string: newValue) ?? 0
                         }
@@ -52,6 +53,14 @@ struct OnboardingStep3StartingBalancesView: View {
                 Text("Tip: You can leave these at 0 if you're starting fresh or don't know your current balances.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedField = false
+                }
             }
         }
     }

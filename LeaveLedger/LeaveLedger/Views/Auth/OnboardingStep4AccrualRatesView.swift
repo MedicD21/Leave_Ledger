@@ -2,9 +2,10 @@ import SwiftUI
 
 struct OnboardingStep4AccrualRatesView: View {
     @ObservedObject var state: OnboardingState
+    @FocusState private var focusedField: Bool
 
-    @State private var vacationRateText: String = "0.00"
-    @State private var sickRateText: String = "0.00"
+    @State private var vacationRateText: String = ""
+    @State private var sickRateText: String = ""
 
     var body: some View {
         Form {
@@ -20,14 +21,14 @@ struct OnboardingStep4AccrualRatesView: View {
 
             Section("Accrual Rates (hours per pay period)") {
                 if state.vacationEnabled {
-                    DecimalField(label: "Vacation Accrual", text: $vacationRateText)
+                    DecimalField(label: "Vacation Accrual", text: $vacationRateText, focused: $focusedField)
                         .onChange(of: vacationRateText) { _, newValue in
                             state.vacationAccrualRate = Decimal(string: newValue) ?? 0
                         }
                 }
 
                 if state.sickEnabled {
-                    DecimalField(label: "Sick Leave Accrual", text: $sickRateText)
+                    DecimalField(label: "Sick Leave Accrual", text: $sickRateText, focused: $focusedField)
                         .onChange(of: sickRateText) { _, newValue in
                             state.sickAccrualRate = Decimal(string: newValue) ?? 0
                         }
@@ -48,6 +49,14 @@ struct OnboardingStep4AccrualRatesView: View {
                     Text("After completing setup, you'll be able to track your leave balances, add entries, and see forecasts.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedField = false
                 }
             }
         }

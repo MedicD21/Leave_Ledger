@@ -6,6 +6,7 @@ struct HomeView: View {
     @State private var showBalancePopover = false
     @State private var popoverDate: Date = Date()
     @State private var popoverBalance: BalanceSnapshot = .zero
+    @State private var refreshID = UUID()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -58,10 +59,21 @@ struct HomeView: View {
                 by: { Calendar.current.startOfDay(for: $0.date) }
             )
 
+            let cal = Calendar.current
+            let monthComps = cal.dateComponents([.year, .month], from: viewModel.displayedMonth)
+            let firstDay = cal.date(from: monthComps)!
+            let lastDay = cal.date(byAdding: DateComponents(month: 1, day: -1), to: firstDay)!
+            let notesByDate = Dictionary(
+                uniqueKeysWithValues: viewModel.store.notes(from: firstDay, to: lastDay).map {
+                    (cal.startOfDay(for: $0.date), $0)
+                }
+            )
+
             CalendarGridView(
                 displayedMonth: viewModel.displayedMonth,
                 selectedDate: viewModel.selectedDate,
                 entriesByDate: entriesByDate,
+                notesByDate: notesByDate,
                 anchorPayday: viewModel.profile.anchorPayday,
                 onDateTap: { date in
                     viewModel.selectDate(date)
@@ -74,10 +86,14 @@ struct HomeView: View {
                 }
             )
             .padding(.horizontal, 8)
+            .id(refreshID)
 
             Spacer()
         }
-        .sheet(isPresented: $showDaySheet) {
+        .sheet(isPresented: $showDaySheet, onDismiss: {
+            // Refresh calendar to reflect any note changes
+            refreshID = UUID()
+        }) {
             DayDetailSheet(viewModel: viewModel, date: viewModel.selectedDate)
         }
         .alert("Forecast Balances", isPresented: $showBalancePopover) {

@@ -4,6 +4,7 @@ struct CalendarGridView: View {
     let displayedMonth: Date
     let selectedDate: Date
     let entriesByDate: [Date: [LeaveEntry]]
+    let notesByDate: [Date: DateNote]
     let anchorPayday: Date
     let onDateTap: (Date) -> Void
     let onBalanceTap: (Date) -> Void
@@ -60,6 +61,7 @@ struct CalendarGridView: View {
                                 isToday: calendar.isDateInToday(date),
                                 isPayday: PayPeriodService.isPayday(date, anchorPayday: anchorPayday),
                                 entries: entriesByDate[calendar.startOfDay(for: date)] ?? [],
+                                note: notesByDate[calendar.startOfDay(for: date)],
                                 onTap: { onDateTap(date) },
                                 onBalanceTap: { onBalanceTap(date) }
                             )
@@ -80,6 +82,7 @@ struct DayCellView: View {
     let isToday: Bool
     let isPayday: Bool
     let entries: [LeaveEntry]
+    let note: DateNote?
     let onTap: () -> Void
     let onBalanceTap: () -> Void
 
@@ -116,6 +119,11 @@ struct DayCellView: View {
                     .lineLimit(1)
             }
 
+            // Note chip (if exists)
+            if let note = note {
+                NoteChipView(note: note)
+            }
+
             // Entry chips (max 2 shown, then "+N")
             let displayEntries = Array(entries.prefix(2))
             ForEach(displayEntries, id: \.id) { entry in
@@ -141,6 +149,21 @@ struct DayCellView: View {
         )
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
+    }
+}
+
+struct NoteChipView: View {
+    let note: DateNote
+
+    var body: some View {
+        Text(note.title)
+            .font(.system(size: 7, weight: .medium))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 3)
+            .padding(.vertical, 1)
+            .background(note.color)
+            .clipShape(RoundedRectangle(cornerRadius: 3))
+            .lineLimit(1)
     }
 }
 

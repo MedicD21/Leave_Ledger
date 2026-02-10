@@ -17,6 +17,7 @@ struct SettingsView: View {
     @State private var importResult: String?
     @State private var showImportResult = false
     @State private var showResetConfirmation = false
+    @FocusState private var focusedField: Bool
 
     // Editable fields
     @State private var anchorDate: Date
@@ -56,13 +57,13 @@ struct SettingsView: View {
 
             Section("Starting Balances (at Anchor Payday)") {
                 if viewModel.profile.sickEnabled {
-                    DecimalField(label: "Sick Hours", text: $sickStart)
+                    DecimalField(label: "Sick Hours", text: $sickStart, focused: $focusedField)
                 }
                 if viewModel.profile.vacationEnabled {
-                    DecimalField(label: "Vacation Hours", text: $vacStart)
+                    DecimalField(label: "Vacation Hours", text: $vacStart, focused: $focusedField)
                 }
                 if viewModel.profile.compEnabled {
-                    DecimalField(label: "Comp Hours", text: $compStart)
+                    DecimalField(label: "Comp Hours", text: $compStart, focused: $focusedField)
                 }
 
                 Button("Apply Starting Balances") {
@@ -75,10 +76,10 @@ struct SettingsView: View {
 
             Section("Accrual Rates (per Payday)") {
                 if viewModel.profile.sickEnabled {
-                    DecimalField(label: "Sick Accrual", text: $sickRate)
+                    DecimalField(label: "Sick Accrual", text: $sickRate, focused: $focusedField)
                 }
                 if viewModel.profile.vacationEnabled {
-                    DecimalField(label: "Vacation Accrual", text: $vacRate)
+                    DecimalField(label: "Vacation Accrual", text: $vacRate, focused: $focusedField)
                 }
 
                 Button("Apply Accrual Rates") {
@@ -204,6 +205,14 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    focusedField = false
+                }
+            }
+        }
         .sheet(item: $csvURL) { identifiableURL in
             ShareSheet(items: [identifiableURL.url])
         }
@@ -312,6 +321,7 @@ struct SettingsView: View {
 struct DecimalField: View {
     let label: String
     @Binding var text: String
+    var focused: FocusState<Bool>.Binding?
 
     var body: some View {
         HStack {
@@ -321,6 +331,7 @@ struct DecimalField: View {
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 100)
+                .focused(focused ?? FocusState<Bool>().projectedValue)
         }
     }
 }

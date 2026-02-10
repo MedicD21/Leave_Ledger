@@ -41,6 +41,9 @@
 		CB6027362F3A575000B137C8 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027352F3A575000B137C8 /* OnboardingState.swift */; };
 		CB6027382F3A575F00B137C8 /* PayPeriodType.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027372F3A575F00B137C8 /* PayPeriodType.swift */; };
 		CB60273A2F3A578200B137C8 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6027392F3A578200B137C8 /* AuthService.swift */; };
+		CB60273C2F3A7CE600B137C8 /* Bundle+AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB60273B2F3A7CE600B137C8 /* Bundle+AppIcon.swift */; };
+		CB60273E2F3A85ED00B137C8 /* DateNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB60273D2F3A85ED00B137C8 /* DateNote.swift */; };
+		CB6027402F3A860500B137C8 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB60273F2F3A860500B137C8 /* NoteEditorView.swift */; };
 		CBDA0B6D2F39317B00BEB3B7 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */; };
 		CBDA0B6F2F39319500BEB3B7 /* ErrorReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */; };
 		CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */; };
@@ -95,6 +98,9 @@
 		CB6027352F3A575000B137C8 /* OnboardingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
 		CB6027372F3A575F00B137C8 /* PayPeriodType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayPeriodType.swift; sourceTree = "<group>"; };
 		CB6027392F3A578200B137C8 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		CB60273B2F3A7CE600B137C8 /* Bundle+AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+AppIcon.swift"; sourceTree = "<group>"; };
+		CB60273D2F3A85ED00B137C8 /* DateNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateNote.swift; sourceTree = "<group>"; };
+		CB60273F2F3A860500B137C8 /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
 		CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		CBDA0B6E2F39319500BEB3B7 /* ErrorReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorReporter.swift; sourceTree = "<group>"; };
 		CBDA0B702F397D9500BEB3B7 /* ImportExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportService.swift; sourceTree = "<group>"; };
@@ -156,6 +162,7 @@
 		A70004000000000000000004 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				CB60273D2F3A85ED00B137C8 /* DateNote.swift */,
 				CB6027372F3A575F00B137C8 /* PayPeriodType.swift */,
 				CB6027352F3A575000B137C8 /* OnboardingState.swift */,
 				A20002000000000000000002 /* LeaveType.swift */,
@@ -186,6 +193,7 @@
 		A70006000000000000000006 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				CB60273B2F3A7CE600B137C8 /* Bundle+AppIcon.swift */,
 				CBDA0B6C2F39317B00BEB3B7 /* Logger.swift */,
 				A2000D00000000000000000D /* DateUtils.swift */,
 			);
@@ -233,6 +241,7 @@
 		A7000B00000000000000000B /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				CB60273F2F3A860500B137C8 /* NoteEditorView.swift */,
 				A20011000000000000000011 /* BalanceSummaryView.swift */,
 				A20012000000000000000012 /* DayDetailSheet.swift */,
 				A20013000000000000000013 /* EntryEditorView.swift */,
@@ -381,8 +390,10 @@
 				A10001000000000000000001 /* LeaveLedgerApp.swift in Sources */,
 				CBDA0B712F397D9500BEB3B7 /* ImportExportService.swift in Sources */,
 				CB60272D2F3A569C00B137C8 /* OnboardingStep2LeaveTypesView.swift in Sources */,
+				CB6027402F3A860500B137C8 /* NoteEditorView.swift in Sources */,
 				CB60272E2F3A569C00B137C8 /* LoginView.swift in Sources */,
 				CB60272F2F3A569C00B137C8 /* OnboardingStep4AccrualRatesView.swift in Sources */,
+				CB60273E2F3A85ED00B137C8 /* DateNote.swift in Sources */,
 				CB6027302F3A569C00B137C8 /* OnboardingStep3StartingBalancesView.swift in Sources */,
 				CB6027312F3A569C00B137C8 /* OnboardingStep1PayPeriodView.swift in Sources */,
 				CB6027322F3A569C00B137C8 /* OnboardingContainerView.swift in Sources */,
@@ -392,6 +403,7 @@
 				A10005000000000000000005 /* UserProfile.swift in Sources */,
 				CB6027342F3A572B00B137C8 /* AuthViewModel.swift in Sources */,
 				CB6027382F3A575F00B137C8 /* PayPeriodType.swift in Sources */,
+				CB60273C2F3A7CE600B137C8 /* Bundle+AppIcon.swift in Sources */,
 				A10006000000000000000006 /* BalanceEngine.swift in Sources */,
 				A10007000000000000000007 /* DataStore.swift in Sources */,
 				A10008000000000000000008 /* ExportService.swift in Sources */,
